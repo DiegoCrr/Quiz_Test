@@ -1,0 +1,4097 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Quiz_Test_V9</title>
+  <style>
+    /* --------------------------------
+       STILE DI BASE E LAYOUT
+    --------------------------------- */
+    body {
+      font-family: 'Calibri Light', sans-serif;
+      font-size: 16px;
+      background-color: #fafafa;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 30px;
+    }
+    h1 {
+      color: #c0392b;
+      font-size: 1.8em;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    p {
+      margin-bottom: 20px;
+    }
+
+    /* --------------------------------
+       SEZIONE QUIZ
+    --------------------------------- */
+    .question-container {
+      margin-bottom: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .question-container h3 {
+      margin: 0 0 10px 0;
+      font-size: 1.1em;
+      color: #000;
+    }
+    .answers label {
+      display: block;
+      margin-bottom: 5px;
+      cursor: pointer;
+    }
+
+    /* --------------------------------
+       SEZIONE RISULTATI
+    --------------------------------- */
+    #results {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .correct {
+      color: green;
+      font-weight: bold;
+    }
+    .incorrect {
+      color: red;
+      font-weight: bold;
+    }
+
+    /* --------------------------------
+       BOTTONE
+    --------------------------------- */
+    button {
+      background-color: #c0392b;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1em;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 20px;
+      display: inline-block;
+    }
+    button:hover {
+      background-color: #d35400;
+    }
+
+    /* Piccola ottimizzazione per schermi molto stretti */
+    @media (max-width: 600px) {
+      .container {
+        padding: 15px;
+      }
+      button {
+        width: 100%;
+        text-align: center;
+        margin-top: 10px;
+      }
+      body {
+        font-size: 18px;
+        line-height: 1.7;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Quiz_Test_V9</h1>
+    <p>Rispondi alle 30 domande estratte casualmente. Al termine, premi <strong>“Invia risposte”</strong> per vedere il tuo punteggio e le soluzioni corrette (in caso di errori).</p>
+
+    <!-- Contenitore del quiz -->
+    <div id="quiz"></div>
+
+    <!-- Pulsante di invio -->
+    <button onclick="submitQuiz()">Invia risposte</button>
+
+    <h2>Risultati</h2>
+    <div id="results"></div>
+  </div>
+
+  <script>
+    // ================================================
+    // 320 DOMANDE TOTALI (8 set da 40) + ( 1 set da 80)
+    // ================================================
+    // set 1: CHIMICA E FISICA DELL’INCENDIO (40)
+    // set 2: SOSTANZE PERICOLOSE (40)
+    // set 3: TRASPORTO DI SOSTANZE PERICOLOSE (40)
+    // set 4: CENNI DI ELETTROTECNICA (40)
+    // set 5: DPI (40)
+    // set 6: SICUREZZA SCENARI E POS (40)
+    // set 7: PREVENZIONI INCENDIO (40)
+	// set 8: POLIZIA GIUDIZIARIA (40)
+	// set 9: SOSTANZE ESTINGUENTI (80)
+
+    const questionBank = [
+
+      // ================================
+      // 1) CHIMICA E FISICA DELL’INCENDIO (40)
+      // ================================
+      {
+        question: "La combustione è una reazione?",
+        answers: ["Endotermica","Esotermica","Atermica","Nessuna delle precedenti"],
+        correctAnswer: 1
+      },
+      {
+        question: "Il triangolo del fuoco comprende quali elementi fondamentali?",
+        answers: ["Combustibile, ossigeno, inibitore","Ossigeno, vapore, calore","Combustibile, ossigeno, calore","Ossigeno, carburante, acqua"],
+        correctAnswer: 2
+      },
+      {
+        question: "Che cosa rappresenta il 'punto di infiammabilità' di un liquido?",
+        answers: ["La temperatura di ebollizione","La temperatura di autodistruzione","La temperatura minima alla quale il liquido rilascia vapori in grado di incendiarsi","La temperatura di fusione"],
+        correctAnswer: 2
+      },
+      {
+        question: "Quale fattore non fa parte del triangolo del fuoco?",
+        answers: ["Ossigeno","Combustibile","Calore","Umidità"],
+        correctAnswer: 3
+      },
+      {
+        question: "La reazione di combustione avviene tra combustibile e:",
+        answers: ["Carbonio","Azoto","Ossigeno","Biossido di zolfo"],
+        correctAnswer: 2
+      },
+      {
+        question: "Qual è il prodotto principale di una combustione completa?",
+        answers: ["CO2 e H2O","CO e fuliggine","SO2 e acqua","Ozono e metano"],
+        correctAnswer: 0
+      },
+      {
+        question: "Il fenomeno dello 'spotting' negli incendi boschivi consiste in:",
+        answers: ["Fumo che sale verticalmente","Formazione di incendi secondari a distanza per trasporto di braci","Combustione senza fiamma","Incendio controllato per proteggere la zona"],
+        correctAnswer: 1
+      },
+      {
+        question: "La fase di 'innesco' di un incendio è caratterizzata da:",
+        answers: ["Propagazione rapida di fiamma","Bassa temperatura e lenta reazione","Totalità del combustibile coinvolto","Fine della combustione"],
+        correctAnswer: 1
+      },
+      {
+        question: "Un incendio di classe A riguarda:",
+        answers: ["Metalli combustibili","Gas infiammabili","Liquidi infiammabili","Materiali solidi ordinari (legno, carta, tessuti, ecc.)"],
+        correctAnswer: 3
+      },
+      {
+        question: "La differenza tra un incendio di classe B e C è:",
+        answers: ["La presenza di sostanze radioattive","Il tipo di combustibile (liquido vs. gas)","Il colore della fiamma","L’assenza di ossigeno"],
+        correctAnswer: 1
+      },
+      {
+        question: "Il flash point (punto di infiammabilità) di una sostanza indica:",
+        answers: [
+          "La pressione atmosferica minima per bruciare",
+          "La temperatura al di sotto della quale la sostanza è esplosiva",
+          "La temperatura a cui la sostanza emette vapori combustibili",
+          "La quantità di calore necessario per avviare la reazione"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Un incendio di classe D coinvolge:",
+        answers: [
+          "Solidi combustibili come legno e carta",
+          "Metalli combustibili (es. magnesio, alluminio)",
+          "Oli da cucina",
+          "Gas infiammabili"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "La temperatura di autoaccensione è:",
+        answers: [
+          "La temperatura in cui un combustibile si accende spontaneamente",
+          "La temperatura di ebollizione di un combustibile",
+          "La temperatura di congelamento di un liquido infiammabile",
+          "La temperatura di fusione del metallo"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Il fenomeno del 'backdraft' è:",
+        answers: [
+          "Un effetto di raffreddamento improvviso",
+          "Un'esplosione causata dall'ingresso improvviso di ossigeno in un ambiente saturo di fumi caldi",
+          "La rapida estinzione di un incendio",
+          "Una particolare tecnica di spegnimento"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "L'estinzione di un incendio può avvenire rimuovendo uno dei fattori del triangolo del fuoco. Quale dei seguenti è un metodo corretto?",
+        answers: [
+          "Riduzione del contenuto di azoto",
+          "Riduzione del calore (raffreddamento)",
+          "Aumento dell'ossigeno",
+          "Aggiunta di combustibile"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "La velocità di combustione dipende:",
+        answers: [
+          "Dal peso molecolare del combustibile",
+          "Dalla pressione barometrica",
+          "Dalla superficie di contatto tra combustibile e ossigeno",
+          "Dalla forza di gravità"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "La reazione di combustione produce generalmente:",
+        answers: [
+          "Calore e ossigeno",
+          "Calore, luce e gas di scarico",
+          "Solo calore",
+          "Un raffreddamento dell'ambiente"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "In chimica, l’ossidazione è:",
+        answers: [
+          "Una reazione di scambio di elettroni con aumento del numero di ossidazione",
+          "Una reazione senza variazioni di elettroni",
+          "Una reazione che avviene solo in assenza di calore",
+          "Un sinonimo di combustione"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Il calore latente di vaporizzazione è:",
+        answers: [
+          "La quantità di calore rilasciata dalla condensazione",
+          "Il calore assorbito o ceduto durante il passaggio di stato da liquido a vapore senza variazione di temperatura",
+          "L'energia necessaria ad avviare la combustione",
+          "La quantità di calore prodotta da un fuoco"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Il fumo prodotto dalla combustione è composto principalmente da:",
+        answers: [
+          "Ossigeno puro e monossido di carbonio",
+          "Polveri sottili, gas e vapori caldi",
+          "Gocce di vapore acqueo non tossiche",
+          "Metalli pesanti in forma aerosol"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Cosa si intende per combustione incompleta?",
+        answers: [
+          "Quando il combustibile è totalmente ossidato",
+          "Quando non c'è produzione di CO",
+          "Quando non si dispone di sufficiente ossigeno, producendo CO e altri composti",
+          "Quando la fiamma è di colore blu"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Qual è la differenza principale tra incendio e esplosione?",
+        answers: [
+          "La presenza di fumo",
+          "La velocità di rilascio dell'energia",
+          "Il tipo di combustibile",
+          "La quantità di ossigeno"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Il trasferimento di calore per convezione avviene mediante:",
+        answers: [
+          "Onde elettromagnetiche",
+          "Contatto diretto tra superfici",
+          "Movimento di fluidi (aria o liquidi)",
+          "Riduzione della temperatura"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "L’irraggiamento termico è un tipo di trasferimento di calore che:",
+        answers: [
+          "Non richiede un mezzo materiale",
+          "Richiede il contatto solido",
+          "Avviene solo in presenza di liquidi",
+          "Non è presente negli incendi"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Il passaggio dallo stato solido a quello gassoso senza passare per il liquido si chiama:",
+        answers: ["Condensazione","Sublimazione","Evaporazione","Fusione"],
+        correctAnswer: 1
+      },
+      {
+        question: "Un agente estinguente che sottrae calore al combustibile agisce per:",
+        answers: ["Soffocamento","Raffreddamento","Inibizione chimica","Diluzione dei fumi"],
+        correctAnswer: 1
+      },
+      {
+        question: "Il passaggio da stato gassoso a solido si definisce:",
+        answers: ["Evaporazione","Brinamento","Condensazione","Fusione"],
+        correctAnswer: 1
+      },
+      {
+        question: "Un gas combustibile come il metano, a contatto con ossigeno e scintilla:",
+        answers: [
+          "Non reagisce",
+          "Detona senza fiamma",
+          "Può innescare una combustione",
+          "Neutralizza l'ossigeno"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "La legge di Lavoisier sulla conservazione della massa afferma che:",
+        answers: [
+          "La massa dei reagenti è maggiore di quella dei prodotti",
+          "La massa si crea dal nulla durante la reazione",
+          "La massa dei reagenti è uguale alla massa dei prodotti",
+          "La massa scompare dopo la combustione"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Nel fumo di un incendio si può trovare monossido di carbonio (CO) perché:",
+        answers: [
+          "Il CO è sempre presente nell'aria",
+          "Il CO è prodotto dalla combustione incompleta",
+          "L'ossigeno reagisce in eccesso",
+          "Il combustibile è privo di carbonio"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "La conducibilità termica di un materiale indica:",
+        answers: [
+          "La sua capacità di resistere al calore",
+          "La sua capacità di riflettere la luce",
+          "La sua capacità di trasferire calore per contatto",
+          "La sua resistenza all'umidità"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Quale fenomeno si verifica se un vapore combustibile si raffredda al di sotto del suo punto di infiammabilità?",
+        answers: [
+          "Aumenta il rischio di esplosione",
+          "Cessa la possibilità di innesco",
+          "L'aria diventa più ricca di ossigeno",
+          "Si forma anidride carbonica"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "La 'fiamma' è:",
+        answers: [
+          "Una reazione endotermica di evaporazione",
+          "Gas caldi ionizzati e luminosi derivanti dalla combustione",
+          "Un fenomeno puramente fisico",
+          "Una forma di plasma a bassa temperatura che non emette luce"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Perché il legno secco brucia più velocemente del legno umido?",
+        answers: [
+          "Per l'assenza di ossigeno",
+          "Perché contiene meno acqua da far evaporare",
+          "Perché produce monossido di carbonio",
+          "Perché ha un colore più chiaro"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Le esplosioni polveri (ad esempio farine) avvengono se:",
+        answers: [
+          "La polvere è umida",
+          "Non c'è ossigeno",
+          "Le particelle di polvere sono sospese in aria e innescate",
+          "La temperatura è inferiore a 0 °C"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "La temperatura di 'ignizione' di un materiale è:",
+        answers: [
+          "Il punto in cui inizia a fondere",
+          "La temperatura massima di stoccaggio",
+          "La temperatura alla quale il materiale inizia a bruciare spontaneamente",
+          "La temperatura in cui il materiale evapora tutto"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Che cos'è il fenomeno del 'rollover' o 'flame over'?",
+        answers: [
+          "Un modo per spegnere un incendio",
+          "L'accumulo di fumi freddi verso il basso",
+          "La propagazione di fiamme sullo strato di gas caldi nel soffitto",
+          "Un sistema di ventilazione naturale"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Perché il monossido di carbonio (CO) è pericoloso negli incendi?",
+        answers: [
+          "Perché colora l'aria di nero",
+          "Perché è inodore, incolore e tossico, con affinità per l’emoglobina",
+          "Perché produce fiamme molto alte",
+          "Perché raffredda la scena dell'incendio"
+        ],
+        correctAnswer: 1
+      },
+
+      // ================================
+      // 2) SOSTANZE PERICOLOSE (40)
+      // ================================
+      {
+        question: "Le sostanze pericolose sono classificate in base a:",
+        answers: ["Proprietà fisico-chimiche e tossicologiche","Colore e forma","Costo di produzione","Metodo di smaltimento"],
+        correctAnswer: 0
+      },
+      {
+        question: "I pesticidi sono considerati:",
+        answers: [
+          "Sostanze innocue per l'uomo",
+          "Sostanze infiammabili al 100%",
+          "Sostanze pericolose per la salute",
+          "Soltanto liquidi non volatili"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Le sostanze corrosive possono:",
+        answers: [
+          "Danneggiare tessuti viventi e materiali",
+          "Essere usate solo come combustibile",
+          "Essere maneggiate senza protezioni",
+          "Non causare bruciature chimiche"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Un gas tossico può rappresentare un pericolo perché:",
+        answers: [
+          "Propaga un incendio più rapidamente",
+          "Può intossicare le persone anche a bassi livelli di concentrazione",
+          "È sempre esplosivo",
+          "Non reagisce con altri gas"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Le sostanze infiammabili hanno:",
+        answers: [
+          "Un punto di infiammabilità molto elevato",
+          "Una temperatura di autoaccensione estremamente bassa",
+          "La capacità di bruciare solo in condizioni criogeniche",
+          "Un punto di infiammabilità relativamente basso"
+        ],
+        correctAnswer: 3
+      },
+      {
+        question: "Le sostanze comburenti:",
+        answers: [
+          "Si decompongono in acqua e ossigeno",
+          "Forniscono ossigeno per la combustione",
+          "Sono sempre tossiche",
+          "Inibiscono la combustione"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Il simbolo di pericolo con la 'fiamma' indica:",
+        answers: [
+          "Sostanze esplosive",
+          "Sostanze infiammabili",
+          "Sostanze corrosive",
+          "Sostanze radioattive"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Il simbolo di pericolo con il 'teschio' indica:",
+        answers: ["Gas inerte","Sostanza velenosa/tossica","Sostanza biologica non pericolosa","Sostanza infiammabile"],
+        correctAnswer: 1
+      },
+      {
+        question: "Le sostanze radioattive:",
+        answers: [
+          "Non emettono radiazioni penetranti",
+          "Possono causare danni a lungo termine all’organismo",
+          "Sono sempre innocue a breve distanza",
+          "Sono identiche alle sostanze corrosive"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Quali sono i principali effetti di un inalante tossico?",
+        answers: [
+          "Irritazione cutanea e ustioni",
+          "Avvelenamento rapido del sistema respiratorio e nervoso",
+          "Non ha effetti sulla salute",
+          "Raffreddamento della gola"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Una sostanza irritante può causare:",
+        answers: [
+          "Nessun effetto",
+          "Semplicemente un cattivo odore",
+          "Irritazione e infiammazione di pelle, occhi e mucose",
+          "Infiammabilità estrema"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Le sostanze comburenti:",
+        answers: [
+          "Non partecipano mai a reazioni di combustione",
+          "Possono favorire l’esplosione di altre sostanze",
+          "Sono infiammabili",
+          "Sono inerti in atmosfera"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "I liquidi criogenici (ad es. azoto liquido) sono pericolosi perché:",
+        answers: [
+          "Evaporano emettendo gas molto caldi",
+          "Hanno sempre reazioni chimiche violente",
+          "Possono causare ustioni da freddo e incrementare il rischio di asfissia",
+          "Non sono mai compatibili con l'ossigeno"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Un'esplosione di polveri può avvenire quando:",
+        answers: [
+          "Le polveri sono umide e molto dense",
+          "Le polveri sono disperse nell'aria e c'è una sorgente di innesco",
+          "Non ci sono sostanze comburenti",
+          "La temperatura è molto bassa"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Le sostanze piroforiche:",
+        answers: [
+          "Bruciano solo in assenza di ossigeno",
+          "Sono sempre liquide e inodori",
+          "Possono incendiarsi spontaneamente a contatto con l’aria",
+          "Non producono mai fiamma"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Gli acidi forti come l’acido solforico sono classificati come:",
+        answers: [
+          "Sostanze radioattive",
+          "Sostanze corrosive",
+          "Sostanze infiammabili",
+          "Sostanze inerti"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "L’ammoniaca (NH3) è pericolosa perché:",
+        answers: [
+          "È inodore e non rilevabile",
+          "È infiammabile a temperatura ambiente",
+          "È un gas tossico e corrosivo in alta concentrazione",
+          "Non ha reazioni con l’acqua"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Il GHS (Globally Harmonized System) serve a:",
+        answers: [
+          "Definire regole di stoccaggio per esplosivi militari",
+          "Uniformare la classificazione e l’etichettatura delle sostanze chimiche a livello mondiale",
+          "Eliminare le sostanze tossiche dai mercati",
+          "Regolare esclusivamente il trasporto di gas"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Un gas asfissiante come l’azoto può essere pericoloso perché:",
+        answers: [
+          "È altamente infiammabile",
+          "Tende a esplodere al sole",
+          "Può ridurre la concentrazione di ossigeno nell'aria",
+          "Ha un odore molto forte"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Il cloro (Cl2) è:",
+        answers: [
+          "Un gas inerte e privo di tossicità",
+          "Un gas comburente",
+          "Un gas corrosivo e tossico",
+          "Un solvente organico"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Le sostanze cancerogene sono:",
+        answers: [
+          "Sostanze che favoriscono la combustione",
+          "Agenti in grado di provocare o favorire il cancro",
+          "Sostanze prive di effetti a lungo termine",
+          "Non esistono in natura"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Un perossido organico è:",
+        answers: [
+          "Un composto chimico altamente stabile",
+          "Un esplosivo primario",
+          "Un materiale che può decomporsi facilmente rilasciando calore e ossigeno",
+          "Un semplice fertilizzante"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Gli agenti infettivi rientrano tra:",
+        answers: [
+          "I liquidi infiammabili",
+          "Le sostanze corrosive",
+          "Le sostanze tossiche o biologiche",
+          "I gas liquefatti"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Gli idrocarburi alogenati (ad es. freon) possono essere pericolosi perché:",
+        answers: [
+          "Sono sempre esplosivi",
+          "Possono rilasciare gas tossici durante la decomposizione o combustione",
+          "Sono inerti in qualunque condizione",
+          "Sono equivalenti all'acqua"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Una sostanza volatile:",
+        answers: [
+          "Evapora facilmente e può formare miscele pericolose con l'aria",
+          "Non passa mai allo stato gassoso",
+          "È sempre in forma solida",
+          "È sicura in ogni condizione"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "La formaldeide (CH2O) è:",
+        answers: [
+          "Un gas estremamente infiammabile e innocuo",
+          "Un liquido incolore, irritante e potenzialmente cancerogeno",
+          "Un olio combustibile ad alta viscosità",
+          "Privo di effetti sulla salute"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Gli acidi organici (ad es. acido acetico) sono:",
+        answers: [
+          "Infiammabili, a volte corrosivi",
+          "Sempre neutri",
+          "Privi di odore",
+          "Totale sostituto dell'acqua"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Gli idrocarburi come benzina e gasolio sono:",
+        answers: [
+          "Sostanze non pericolose in alcun modo",
+          "Liquidi infiammabili e potenzialmente esplosivi",
+          "Sempre solidi a temperatura ambiente",
+          "Inerti all'ossigeno"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Gli oli esausti possono essere pericolosi perché:",
+        answers: [
+          "Non bruciano mai",
+          "Possono contenere residui tossici e infiammabili",
+          "Sono composti esclusivamente da acqua",
+          "Si decompongono in pochi secondi"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Le sostanze con pH estremamente basso o alto sono considerate:",
+        answers: ["Corrosive","Infiammabili","Radioattive","Inerti"],
+        correctAnswer: 0
+      },
+      {
+        question: "Una miscela esplosiva si forma quando:",
+        answers: [
+          "Una sostanza viene diluita in acqua",
+          "La concentrazione di vapori infiammabili è compresa tra limite inferiore ed superiore di esplosività",
+          "Il liquido viene riscaldato oltre il punto di ebollizione",
+          "Non c'è sufficiente ossigeno"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Il cianuro di idrogeno (HCN) è:",
+        answers: [
+          "Un gas inerte",
+          "Un gas estremamente tossico",
+          "Un carburante biologico",
+          "Un deodorante naturale"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Gli agenti ossidanti (come il nitrato di potassio) possono:",
+        answers: [
+          "Inibire la combustione",
+          "Ridurre l’ossigeno nell’aria",
+          "Alimentare e intensificare la combustione",
+          "Essere usati come refrigeranti"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Le sostanze mutagene sono:",
+        answers: [
+          "Agenti che alterano il DNA",
+          "Sempre infiammabili",
+          "Innocue sulla salute umana",
+          "Prodotte solo dai batteri"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "L'idrogeno (H2) è:",
+        answers: [
+          "Un gas infiammabile e leggero",
+          "Un liquido verde tossico",
+          "Un solido infiammabile",
+          "Sempre in forma liquida a temperatura ambiente"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Il mercurio è:",
+        answers: [
+          "Un metallo solido a temperatura ambiente",
+          "Un metallo liquido tossico",
+          "Un gas naturale non tossico",
+          "Un combustibile solido"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Il contatto tra una base forte (NaOH) e un acido forte (HCl) può causare:",
+        answers: [
+          "Reazione violenta con forte sviluppo di calore",
+          "Raffreddamento istantaneo",
+          "Nessun tipo di reazione",
+          "Trasformazione in gas inerte"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Un 'pericolo chimico' è definito come:",
+        answers: [
+          "Qualsiasi sostanza che evapora lentamente",
+          "Qualsiasi gas con odore sgradevole",
+          "La potenzialità di causare danni a persone, cose o ambiente per reazioni chimiche o proprietà tossiche",
+          "Una sostanza sempre innocua se maneggiata con guanti"
+        ],
+        correctAnswer: 2
+      },
+
+      // ================================
+      // 3) TRASPORTO DI SOSTANZE PERICOLOSE (40)
+      // ================================
+      {
+        question: "Il trasporto di sostanze pericolose su strada è regolato dall’ADR. Cosa significa ADR?",
+        answers: [
+          "Accordo sui Dettagli di Rischio",
+          "Accordo Europeo relativo al trasporto internazionale di merci pericolose su strada",
+          "Accordo Doganale di Rotterdam",
+          "Accordo per la Distribuzione Regionale dei gas"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Le etichette di pericolo sui veicoli che trasportano sostanze pericolose servono a:",
+        answers: [
+          "Decorare il mezzo di trasporto",
+          "Trasmettere informazioni sul rischio associato alla merce trasportata",
+          "Indicare il numero di telaio",
+          "Indicare il carico massimo consentito"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Il codice Kemler (numero di pericolo) è composto da:",
+        answers: [
+          "Due cifre fisse per tutti i materiali",
+          "Tre o quattro cifre che indicano il tipo di pericolo della sostanza",
+          "Un numero che indica la massa del veicolo",
+          "Una sequenza alfabetica"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Durante il trasporto di sostanze infiammabili, il veicolo deve essere dotato di:",
+        answers: [
+          "Un dispositivo di raffreddamento automatico",
+          "Estintori adeguati e pannelli arancio con le indicazioni di pericolo",
+          "Un allarme sonoro continuo",
+          "Serbatoi sempre aperti per la ventilazione"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Le cisterne per il trasporto di gas liquefatti devono essere:",
+        answers: [
+          "Sprovviste di valvole di sicurezza",
+          "Totalmente prive di coibentazione",
+          "Resistenti alle pressioni interne elevate e dotate di dispositivi di sicurezza",
+          "Utilizzate solo in estate"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "In caso di incidente con rilascio di sostanza pericolosa durante il trasporto, la prima azione è:",
+        answers: [
+          "Avvicinarsi rapidamente alla fonte del rilascio",
+          "Ignorare la situazione e proseguire",
+          "Allertare i soccorsi e tenersi a distanza di sicurezza",
+          "Versare acqua a caso"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "L’IMDG Code riguarda il trasporto di merci pericolose:",
+        answers: ["Su strada","Per via aerea","Per ferrovia","Via mare"],
+        correctAnswer: 3
+      },
+      {
+        question: "Per il trasporto di sostanze pericolose in ferrovia si fa riferimento al:",
+        answers: ["RID (Regolamento riguardante il trasporto internazionale di merci pericolose per ferrovia)","ICAO","CMR","TIR"],
+        correctAnswer: 0
+      },
+      {
+        question: "In un veicolo ADR, il pannello arancio senza numeri indica:",
+        answers: [
+          "Che la sostanza è radioattiva",
+          "Che il trasporto non è regolamentato",
+          "Che ci sono merci pericolose ma di tipo non specificato (trasporto in colli)",
+          "Che il veicolo è vuoto"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Il numero ONU (UN number) serve a:",
+        answers: [
+          "Identificare la sostanza pericolosa in modo univoco a livello internazionale",
+          "Identificare il conducente",
+          "Indicare il grado di purezza della sostanza",
+          "Fornire la scadenza del prodotto"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Le classi di pericolo ADR sono in totale:",
+        answers: ["9","2","15","Non esistono classi di pericolo"],
+        correctAnswer: 0
+      },
+      {
+        question: "La classe 2 dell’ADR include:",
+        answers: ["Solidi infiammabili","Gas compressi, liquefatti o disciolti sotto pressione","Liquidi infiammabili","Sostanze radioattive"],
+        correctAnswer: 1
+      },
+      {
+        question: "La LQ (Limited Quantities) nel trasporto indica:",
+        answers: [
+          "Che non ci sono limiti di quantità",
+          "Trasporto di piccole quantità di merci pericolose con esenzioni parziali",
+          "Trasporto marittimo obbligatorio",
+          "Un codice di emergenza chimica"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Nel trasporto di sostanze corrosive (classe 8 ADR) si deve prestare attenzione a:",
+        answers: [
+          "Utilizzare solo mezzi refrigerati",
+          "L’eventuale contatto con metalli o tessuti umani",
+          "Non utilizzare etichette di pericolo",
+          "La sostanza è sempre inerte a contatto con acqua"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Le sostanze esplosive rientrano in ADR nella classe:",
+        answers: ["1","3","5","7"],
+        correctAnswer: 0
+      },
+      {
+        question: "Nel trasporto su strada di gas infiammabili, è obbligatorio avere a bordo:",
+        answers: [
+          "Un kit di pronto soccorso, estintori e documenti di trasporto ADR",
+          "Un drone di monitoraggio",
+          "Un sistema a energia solare",
+          "Un cartello con scritto 'merce comune'"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "In caso di perdita di sostanze tossiche durante il trasporto, bisogna:",
+        answers: [
+          "Bloccare la fuga di gas senza protezioni",
+          "Diluire con benzina",
+          "Allontanarsi, avvisare le autorità e seguire le procedure di emergenza ADR",
+          "Continuare il viaggio senza sosta"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Il trasporto aereo di merci pericolose è regolamentato da:",
+        answers: ["ADR","RID","IMDG Code","IATA/ICAO"],
+        correctAnswer: 3
+      },
+      {
+        question: "Nel documento di trasporto ADR deve essere riportato:",
+        answers: [
+          "Solo il nome del conducente",
+          "Il numero ONU, la classe di pericolo e la denominazione ufficiale della merce",
+          "La data di nascita del proprietario",
+          "Il colore del veicolo"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Il trasporto di rifiuti pericolosi segue:",
+        answers: [
+          "Le stesse normative ADR, integrato da normative sui rifiuti",
+          "Regole completamente diverse dall’ADR",
+          "Non ha alcuna regolamentazione",
+          "È vietato a prescindere"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "La scheda di sicurezza (SDS) di un prodotto chimico fornisce:",
+        answers: [
+          "Informazioni su composizione, pericoli, misure di primo soccorso e stoccaggio",
+          "Il prezzo e il nome del venditore",
+          "Solo i riferimenti ADR",
+          "La mappa geografica dei depositi"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "La classe 3 dell’ADR comprende:",
+        answers: ["Gas tossici","Liquidi infiammabili","Sostanze radioattive","Sostanze corrosive"],
+        correctAnswer: 1
+      },
+      {
+        question: "Nel trasporto di liquidi infiammabili, è importante:",
+        answers: [
+          "Evitare qualsiasi fonte di innesco (fiamme, scintille, sigarette)",
+          "Usare sempre acqua a contatto con il carico",
+          "Tenere i finestrini del mezzo aperti",
+          "Non preoccuparsi del tipo di contenitore"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "I pannelli arancio nel trasporto ADR sono:",
+        answers: [
+          "Solo una decorazione",
+          "Obbligatori per identificare il pericolo e la sostanza trasportata",
+          "Facoltativi",
+          "Utili solo per i trasporti nazionali"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Nell’ADR, la classe 7 riguarda:",
+        answers: ["Sostanze radioattive","Sostanze corrosive","Sostanze infiammabili","Sostanze velenose"],
+        correctAnswer: 0
+      },
+      {
+        question: "Il tunnel code nell’ADR indica:",
+        answers: [
+          "La velocità massima consentita",
+          "Le restrizioni al trasporto di merci pericolose in determinati tunnel stradali",
+          "Il divieto di sosta in zona residenziale",
+          "Il passaggio libero per tutti i veicoli"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Le sostanze pericolose trasportate in colli devono:",
+        answers: [
+          "Essere prive di etichetta",
+          "Essere imballate ed etichettate secondo le norme ADR",
+          "Essere mischiate tra loro",
+          "Essere sempre trasportate in cisterna"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Nel trasporto di sostanze autoreattive (classe 4.1 ADR), è fondamentale:",
+        answers: [
+          "Garantire una refrigerazione adeguata (se richiesta) e evitare urti o calore eccessivo",
+          "Esporre le sostanze al sole il più possibile",
+          "Aggiungere acqua all’interno dell’imballaggio",
+          "Trasportarle in contenitori di vetro aperti"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "La figura del consulente ADR serve a:",
+        answers: [
+          "Organizzare le soste e i pasti del conducente",
+          "Verificare che l’impresa rispetti gli obblighi di sicurezza nel trasporto di merci pericolose",
+          "Guidare il mezzo in caso di emergenza",
+          "Effettuare manutenzione sul mezzo"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "La classe 5 dell’ADR comprende:",
+        answers: ["Solidi infiammabili","Gas liquefatti","Sostanze comburenti e perossidi organici","Sostanze tossiche"],
+        correctAnswer: 2
+      },
+      {
+        question: "Il trasporto intermodale di sostanze pericolose implica:",
+        answers: [
+          "L'uso di un solo tipo di mezzo",
+          "L'uso coordinato di più modalità di trasporto (strada, ferrovia, mare, ecc.)",
+          "La spedizione esclusivamente per via aerea",
+          "La suddivisione della sostanza in tanti pacchi"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Il termine 'collo' nell’ADR indica:",
+        answers: [
+          "Il serbatoio del veicolo",
+          "Qualsiasi imballaggio di dimensioni ridotte pronto per il trasporto",
+          "Il collo dell’autista",
+          "Un componente del motore"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Le cisterne adibite al trasporto di liquidi infiammabili devono:",
+        answers: [
+          "Avere un colore rosso vivo per legge",
+          "Essere dotate di sistema antincendio fisso interno",
+          "Essere omologate e rispettare requisiti di resistenza e sicurezza specifici",
+          "Non essere mai pulite"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Se un conducente ADR viaggia senza i documenti necessari, rischia:",
+        answers: [
+          "Nessuna sanzione, è consentito",
+          "Sanzioni amministrative o penali e il fermo del veicolo",
+          "Solo una multa di 5 euro",
+          "L'obbligo di viaggiare di notte"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "La classe 6 dell’ADR riguarda:",
+        answers: ["Sostanze tossiche e infettive","Sostanze corrosive","Gas infiammabili","Materiali radioattivi"],
+        correctAnswer: 0
+      },
+      {
+        question: "La presenza di un pannello arancio con due numeri (numero Kemler in alto e numero ONU in basso) indica:",
+        answers: [
+          "Il divieto di trasporto notturno",
+          "Il grado di pericolo e l’identificazione univoca della sostanza",
+          "Un'esenzione dall'ADR",
+          "La classe del veicolo"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Prima di intraprendere il trasporto di un liquido corrosivo, l’autista deve:",
+        answers: [
+          "Verificare che la cisterna o l’imballaggio sia idoneo e in buono stato",
+          "Mescolare la sostanza con acqua",
+          "Aggiungere un colorante",
+          "Rimuovere i cartelli di pericolo"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Le responsabilità dell’azienda speditrice includono:",
+        answers: [
+          "Fornire informazioni corrette sulla merce e imballaggi conformi",
+          "Nascondere i pericoli al trasportatore",
+          "Non applicare etichette di pericolo",
+          "Garantire solo il colore del veicolo"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Il trasporto di batterie al litio è regolato dall’ADR perché:",
+        answers: [
+          "Sono classificate come sostanze radioattive",
+          "Non è necessaria alcuna norma",
+          "Possono presentare rischi di incendio o esplosione",
+          "Sono sempre compresse in bombole"
+        ],
+        correctAnswer: 2
+      },
+
+      // ================================
+      // 4) CENNI DI ELETTROTECNICA (40)
+      // ================================
+      {
+        question: "Che cos’è la corrente alternata (AC)?",
+        answers: [
+          "Un tipo di corrente in cui tensione e intensità cambiano periodicamente direzione e valore",
+          "Un flusso di elettroni costante nel tempo",
+          "Un sistema che utilizza solo basse tensioni",
+          "La corrente presente unicamente nelle batterie"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "In corrente continua (DC), la tensione e la corrente:",
+        answers: [
+          "Variano ciclicamente in ampiezza",
+          "Cambiano polarità 50 volte al secondo",
+          "Rimangono costanti in intensità e direzione",
+          "Vengono generate solo da pannelli fotovoltaici"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Un conduttore elettrico è un materiale che:",
+        answers: [
+          "Non permette il passaggio di elettroni",
+          "Permette il flusso di corrente con bassa resistenza",
+          "Aumenta la tensione di rete",
+          "Emette luce quando attraversato da elettroni"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Che cosa caratterizza un materiale isolante?",
+        answers: [
+          "È privo di massa",
+          "Ha alta conducibilità elettrica",
+          "Ha elevata resistenza al passaggio della corrente elettrica",
+          "Genera sempre un campo magnetico"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "La legge di Ohm stabilisce una relazione tra:",
+        answers: [
+          "Resistenza, potenza e frequenza",
+          "Tensione, resistenza e corrente (V = R × I)",
+          "Energia, tempo e temperatura",
+          "Impedanza, potenza reattiva e fase"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Il magnetismo si origina quando:",
+        answers: [
+          "Si hanno cariche elettriche in movimento o materiali ferromagnetici",
+          "Un circuito è aperto",
+          "La temperatura scende sotto lo zero",
+          "La tensione supera il valore di 230 V"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Come si produce energia elettrica in una centrale termoelettrica?",
+        answers: [
+          "Bruciando un combustibile per generare vapore, che aziona una turbina collegata a un alternatore",
+          "Convertendo direttamente i raggi solari in elettricità",
+          "Utilizzando la forza del vento su pale eoliche",
+          "Con un motore a scoppio che alimenta luci a LED"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "La differenza principale tra corrente alternata monofase e trifase è:",
+        answers: [
+          "La trifase utilizza tre conduttori di fase sfasati di 120°, fornendo più potenza e rendimento",
+          "La monofase è sempre a bassissima tensione",
+          "La monofase non può alimentare carichi resistivi",
+          "La trifase non esiste nelle reti elettriche reali"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Che cos’è un trasformatore statico?",
+        answers: [
+          "Un dispositivo che trasforma l’energia elettrica in meccanica",
+          "Un apparecchio che varia il valore di tensione (e corrente) in corrente alternata senza parti in movimento",
+          "Un reattore nucleare",
+          "Un elemento che genera continuamente onde radio"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Perché si utilizzano linee elettriche ad alta tensione per il trasporto su lunghe distanze?",
+        answers: [
+          "Per aumentare la dispersione di calore",
+          "Perché sono più facili da installare",
+          "Per ridurre le perdite di energia e la caduta di tensione nei conduttori",
+          "Perché la bassa tensione è pericolosa"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "In Italia, come si definiscono bassa, media e alta tensione?",
+        answers: [
+          "Bassa tensione < 1000 V, Media tensione tra 1 kV e 30 kV, Alta tensione sopra 30 kV",
+          "Bassa tensione sopra i 220 kV, media tensione tra 380 V e 1000 V, alta tensione sotto i 380 V",
+          "Solo due categorie: bassa e alta tensione",
+          "Non esiste una classificazione ufficiale"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "La sicurezza elettrica si basa su:",
+        answers: [
+          "L’uso esclusivo di materiali conduttori",
+          "L’installazione di macchinari senza messa a terra",
+          "La prevenzione dei contatti diretti e indiretti e l’uso di dispositivi di protezione",
+          "La riduzione del carico meccanico su un circuito"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Qual è la differenza tra un contatto elettrico diretto e indiretto?",
+        answers: [
+          "Il contatto diretto avviene con parti attive sotto tensione, quello indiretto con masse metalliche divenute in tensione a causa di un guasto",
+          "Non esiste differenza, sono sinonimi",
+          "Il contatto indiretto è un contatto intenzionale",
+          "Il contatto diretto è più sicuro"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Che cos'è un arco elettrico?",
+        answers: [
+          "La curvatura di un cavo sottoposto a sforzi meccanici",
+          "Un passaggio di corrente attraverso un mezzo ionizzato, generando luce e calore intensi",
+          "Il dispositivo di protezione contro le sovratensioni",
+          "Una linea elettrica di riserva"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Qual è lo scopo dell’isolante in un cavo elettrico?",
+        answers: [
+          "Favorire il passaggio di corrente",
+          "Evitare dispersioni e contatti accidentali con il conduttore interno",
+          "Raffreddare il conduttore",
+          "Aumentare la resistenza del cavo"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Qual è la funzione di un generatore di corrente continua (DC)?",
+        answers: [
+          "Fornire tensione alternata a 50 Hz",
+          "Produrre una tensione e una corrente costanti nel tempo",
+          "Invertire la polarità ogni mezzo ciclo",
+          "Trasformare la corrente alternata in tensione più alta"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Come si genera l’energia elettrica in una dinamo?",
+        answers: [
+          "Tramite energia chimica delle batterie",
+          "Facendo ruotare una bobina in un campo magnetico, producendo corrente continua",
+          "Sfruttando l’evaporazione dell’acqua",
+          "Utilizzando una reazione nucleare"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Che cos’è l’effetto Joule in un conduttore?",
+        answers: [
+          "La produzione di campi magnetici variabili",
+          "La dissipazione di energia sotto forma di calore quando passa la corrente",
+          "L’aumento della lunghezza del cavo",
+          "Un fenomeno tipico solo in corrente alternata"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Come si calcola la potenza elettrica in corrente continua?",
+        answers: ["P = V × I","P = I / R","P = V² / f","Non esiste una formula standard"],
+        correctAnswer: 0
+      },
+      {
+        question: "Perché in corrente alternata la potenza può essere 'attiva', 'reattiva' o 'apparente'?",
+        answers: [
+          "Perché esistono componenti di corrente e tensione sfasate dovute a carichi induttivi o capacitivi",
+          "È un concetto che vale solo per la bassa tensione",
+          "Dipende dalla legge di Ohm in CC",
+          "Non c’è differenza, la potenza è sempre uguale"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Un motore elettrico trasforma:",
+        answers: [
+          "Energia meccanica in energia luminosa",
+          "Energia elettrica in energia meccanica (rotazione)",
+          "Corrente continua in corrente alternata",
+          "Frequenza in tensione"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Che cos’è la reattanza in un circuito AC?",
+        answers: [
+          "La parte resistiva di un circuito elettrico",
+          "La tendenza di induttori o condensatori a opporsi al passaggio di corrente alternata",
+          "La misura di tensione al secondario di un trasformatore",
+          "Un fenomeno esclusivo della corrente continua"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Un cavo in rame è considerato un buon conduttore perché:",
+        answers: [
+          "Ha bassissima resistenza elettrica e consente un facile flusso di elettroni",
+          "È trasparente alla luce",
+          "Non si surriscalda mai",
+          "È flessibile e non brucia"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Un cavo in PVC ha proprietà isolanti perché:",
+        answers: [
+          "È un materiale polimerico con alta resistenza elettrica",
+          "È un metallo di ultima generazione",
+          "Contiene rame e alluminio",
+          "È progettato per ridurre l’effetto Joule"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Come si definisce la frequenza della corrente alternata in Italia?",
+        answers: ["120 Hz","50 Hz","45 Hz","Dipende dal periodo dell'anno"],
+        correctAnswer: 1
+      },
+      {
+        question: "Il trasporto dell’energia elettrica avviene tipicamente a tensioni elevate per:",
+        answers: [
+          "Ridurre la corrente e, di conseguenza, le perdite per effetto Joule",
+          "Rendere la corrente più pericolosa",
+          "Diminuire la velocità di rotazione delle turbine",
+          "Migliorare la produzione di calore"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "In un trasformatore, l’abbassamento o l’innalzamento della tensione si ottiene tramite:",
+        answers: [
+          "La modifica della frequenza di rete",
+          "L’induzione elettromagnetica tra avvolgimenti con un diverso numero di spire",
+          "L’aggiunta di resistenze in serie",
+          "Un generatore di corrente continua"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Perché un contatto diretto con un conduttore in tensione è pericoloso?",
+        answers: [
+          "Perché si potrebbe generare un campo magnetico nullo",
+          "Per l’alta probabilità di folgorazione, in quanto il corpo umano chiude il circuito verso terra",
+          "Perché riduce la resistenza del conduttore",
+          "Non rappresenta alcun rischio"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Nel caso di un contatto indiretto, l’elettrocuzione può avvenire quando:",
+        answers: [
+          "Ci si avvicina a una lampadina spenta",
+          "Si toccano parti metalliche di un’apparecchiatura in tensione a causa di un guasto",
+          "Si tocca un cavo neutro perfettamente isolato",
+          "Non si utilizza un trasformatore di isolamento"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Qual è la differenza principale tra un generatore sinusoidale (AC) e uno a corrente continua (DC)?",
+        answers: [
+          "Quello AC produce una tensione variabile nel tempo (onda sinusoidale), mentre il DC fornisce tensione costante",
+          "Non c’è alcuna differenza",
+          "Il generatore AC non può superare i 12 Volt",
+          "Il generatore DC può invertire la polarità 50 volte al secondo"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Cosa si intende per 'perdita di carico' in un conduttore?",
+        answers: [
+          "Un calo di tensione dovuto alla resistenza elettrica del conduttore quando circola corrente",
+          "Un aumento di tensione indesiderato",
+          "La rottura fisica del cavo",
+          "La riduzione del volume del cavo"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Il collegamento a terra serve a:",
+        answers: [
+          "Erogare più energia ai carichi",
+          "Stabilire un riferimento di tensione e proteggere dalle sovratensioni e dai contatti indiretti",
+          "Ridurre la frequenza di rete",
+          "Evitare il funzionamento dei fusibili"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Qual è il principio base delle linee trifase per la produzione e il trasporto di energia?",
+        answers: [
+          "Si utilizzano tre fasi sfasate di 120°, aumentando efficienza e consentendo alimentazioni bilanciate",
+          "L’utilizzo di una singola fase a 1200 V",
+          "Non è un principio, ma solo un vincolo storico",
+          "Si basa su un’unica fase con neutro"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "La legge di Faraday sull’induzione magnetica stabilisce che:",
+        answers: [
+          "Una tensione (f.e.m.) si genera in un conduttore che subisce variazioni di flusso magnetico",
+          "La resistenza dipende dalla temperatura",
+          "La potenza reattiva è uguale a zero",
+          "La corrente circola solo in materiali isolanti"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "In un sistema elettrico, l’interruttore differenziale (salvavita) è utile per:",
+        answers: [
+          "Proteggere dai sovraccarichi di corrente",
+          "Rilevare fughe di corrente verso terra e proteggere dai contatti indiretti",
+          "Ridurre la tensione di rete da 230 V a 12 V",
+          "Stabilizzare la frequenza a 60 Hz"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Che cosa si intende per 'fasore' in corrente alternata?",
+        answers: [
+          "Una rappresentazione vettoriale di grandezze sinusoidali (tensione e corrente) in ampiezza e fase",
+          "Un tipo di conduttore superconduttore",
+          "Un particolare fenomeno di risonanza",
+          "Un cavo coassiale ad alta frequenza"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Quali rischi si corrono in presenza di un arco elettrico in un quadro ad alta tensione?",
+        answers: [
+          "Elevato calore, pressione e luce intensa che possono causare ustioni, danni alla vista e al sistema uditivo",
+          "Nessun rischio se il cavo è in rame",
+          "Soltanto un brusio udibile",
+          "Una temporanea caduta di tensione senza effetti"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Un generatore fotovoltaico produce:",
+        answers: [
+          "Corrente alternata ad alta frequenza",
+          "Energia elettrica in corrente continua, convertibile in AC tramite inverter",
+          "Idrogeno gassoso per alimentare caldaie",
+          "Unicamente calore"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Che cos’è la caduta di tensione su un lungo conduttore?",
+        answers: [
+          "Un malfunzionamento del generatore",
+          "La riduzione di tensione lungo il cavo a causa della sua resistenza, specie ad alte correnti",
+          "Un fenomeno di risonanza magnetica",
+          "La tensione massima presente sulla linea"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "In un circuito elettrico, la tensione è definita come:",
+        answers: [
+          "La quantità di carica in coulomb",
+          "La differenza di potenziale elettrico tra due punti, che spinge la corrente",
+          "La frequenza di un’onda sinusoidale",
+          "La potenza massima di un elettrodomestico"
+        ],
+        correctAnswer: 1
+      },
+
+      // ================================
+      // 5) DPI (40)
+      // ================================
+      {
+        question: "Che cosa si intende per Dispositivo di Protezione Individuale (DPI)?",
+        answers: [
+          "Un dispositivo fisso di protezione collettiva da montare su macchine industriali",
+          "Un dispositivo o attrezzatura destinato ad essere indossato dal lavoratore per proteggersi dai rischi",
+          "Un protocollo di sicurezza per le emergenze mediche",
+          "Un addestramento specifico per il personale di soccorso"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Secondo la normativa italiana (D.Lgs. 81/2008), quali sono le categorie di DPI?",
+        answers: [
+          "Categoria A, B, C",
+          "Si dividono solo in monouso e riutilizzabili",
+          "I, II e III categoria, in base al tipo di rischio",
+          "Non esiste alcuna classificazione ufficiale"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Qual è la caratteristica principale dei DPI di III categoria?",
+        answers: [
+          "Proteggono esclusivamente dalle basse temperature",
+          "Proteggono da rischi elevati che possono causare conseguenze mortali o gravi",
+          "Non necessitano di istruzioni per l’uso",
+          "Sono sempre dispositivi a perdere (monouso)"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Tra i DPI specifici di un Vigile del Fuoco, l’elmo da intervento serve a:",
+        answers: [
+          "Proteggere esclusivamente gli occhi dalla polvere",
+          "Ridurre l’affaticamento in caso di lunghe camminate",
+          "Proteggere il capo da urti, calore, fiamme e agenti chimici (a seconda del modello)",
+          "Essere unicamente un elemento di riconoscimento"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "L’uniforme da intervento ordinaria di un Vigile del Fuoco è considerata un DPI?",
+        answers: [
+          "Sì, perché fornisce un primo livello di protezione da rischi minori",
+          "No, perché è solo un abito di riconoscimento",
+          "È un DPI di III categoria",
+          "No, in nessun caso"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "I guanti da intervento di un Vigile del Fuoco devono:",
+        answers: [
+          "Essere in tessuto leggero per facilitare i movimenti",
+          "Proteggere da calore, fiamme, tagli e abrasioni, mantenendo una discreta sensibilità tattile",
+          "Essere monouso e in lattice",
+          "Essere equivalenti a comuni guanti da giardinaggio"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Perché le calzature da intervento dei Vigili del Fuoco sono considerate DPI di III categoria?",
+        answers: [
+          "Perché proteggono solo dalle polveri in sospensione",
+          "Perché proteggono i piedi da rischio di schiacciamento, perforazione, calore e agenti chimici",
+          "Perché sono dotate di suole colorate e riflettenti",
+          "Non lo sono, appartengono alla II categoria"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Il completo antifiamma (indumento protettivo ignifugo) per i VVF:",
+        answers: [
+          "È obbligatorio solo in caso di incendio boschivo",
+          "È un dispositivo finalizzato a proteggere da calore e fiamme in situazioni di incendio",
+          "Non fa parte dei DPI, ma è un abito formale",
+          "Si usa solo in addestramento"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "A cosa serve il cinturone di sicurezza in dotazione ai Vigili del Fuoco?",
+        answers: [
+          "Solo per estetica e ancorare piccoli accessori",
+          "Per agganciarsi in sicurezza, prevenendo cadute dall’alto in situazioni di intervento",
+          "Sostituisce l’imbracatura anticaduta",
+          "È utile solo per trasportare l’attrezzatura radio"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Cosa si intende per APVR (Apparecchi di Protezione delle Vie Respiratorie)?",
+        answers: [
+          "Dispositivi per la protezione del capo e del viso",
+          "Solamente maschere monouso antipolvere",
+          "Tutti i dispositivi che proteggono le vie respiratorie, filtranti o isolanti",
+          "Un protocollo antincendio avanzato"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Il respiratore a filtro (facciale filtrante) per i Vigili del Fuoco è indicato quando:",
+        answers: [
+          "Ci sono fumi tossici in alte concentrazioni e carenza di ossigeno",
+          "Si necessita di un isolamento totale dall’atmosfera",
+          "La concentrazione di ossigeno nell’aria è adeguata e si vogliono filtrare polveri o alcuni gas specifici",
+          "Non c’è nessun pericolo per la respirazione"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Per interventi in ambienti potenzialmente privi di ossigeno o con gas tossici molto elevati, i VVF utilizzano:",
+        answers: [
+          "Respiratori filtranti FFP2",
+          "Maschera chirurgica",
+          "APVR isolanti, come autorespiratori a circuito aperto (SCBA)",
+          "Respiratori a valvola passiva"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Quando si parla di classificazione dei DPI in base ai rischi, si fa riferimento:",
+        answers: [
+          "Al grado di protezione offerto in relazione alla gravità del rischio (I, II o III categoria)",
+          "Al colore del dispositivo",
+          "Al brand del produttore",
+          "Alla taglia (S, M, L, XL)"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Perché l’elmo da intervento dei VVF ha spesso una visiera integrata?",
+        answers: [
+          "Per scopi estetici",
+          "Per garantire una protezione aggiuntiva di occhi e parte del viso da schegge e calore",
+          "Per evitare di indossare gli occhiali da sole",
+          "Non è più utilizzata nei modelli moderni"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Il tessuto ignifugo dell’uniforme da intervento deve:",
+        answers: [
+          "Resistere alla fiamma e non continuare a bruciare una volta allontanato dalla fonte di calore",
+          "Essere lavato solo a mano",
+          "Avere uno spessore superiore a 5 cm",
+          "Essere sempre di colore rosso"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "La presenza di bande riflettenti sugli indumenti VVF è importante perché:",
+        answers: [
+          "Rende più pesante la divisa",
+          "Favorisce la visibilità del Vigile del Fuoco in condizioni di scarsa illuminazione",
+          "Serve a ridurre il calore assorbito",
+          "È solo un requisito estetico non normato"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Un guanto antitaglio e resistente al calore viene classificato come DPI di:",
+        answers: [
+          "I categoria",
+          "II categoria",
+          "III categoria, se protegge da rischi gravi come calore intenso o agenti chimici",
+          "Non è considerato DPI"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Perché le calzature da intervento devono avere il puntale rinforzato?",
+        answers: [
+          "Per proteggere le dita del piede da schiacciamenti dovuti a caduta di oggetti pesanti",
+          "Per camminare più comodamente su terreni morbidi",
+          "Per migliorare la ventilazione",
+          "Per ridurre il peso complessivo della scarpa"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Il cinturone di sicurezza è spesso dotato di anello (anello D):",
+        answers: [
+          "Per agganciare il moschettone e collegarsi in sicurezza a un punto di ancoraggio",
+          "Per appendere le chiavi di servizio",
+          "Per bloccare l’erogazione d’acqua",
+          "Per trasportare bevande"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "I respiratori isolanti a circuito aperto (SCBA) utilizzano:",
+        answers: [
+          "Bombole di ossigeno puro da 300 bar",
+          "Bombole di aria compressa che fornisce aria respirabile in maniera autonoma",
+          "Un sistema di filtrazione dell’aria esterna",
+          "Azoto liquido per raffreddare l’aria"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Prima di utilizzare un APVR (respiratore), un Vigile del Fuoco deve:",
+        answers: [
+          "Assicurarsi che la maschera non sia troppo stretta e che i filtri o la bombola siano adatti allo scenario di intervento",
+          "Immergere la maschera in acqua bollente",
+          "Rimuovere la valvola di sovrapressione",
+          "Riempire la bombola con gas refrigerante"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "La manutenzione dell’elmo da intervento prevede:",
+        answers: [
+          "Controllo periodico della calotta, dell’imbottitura e della visiera, rimuovendo eventuali danni o incrinature",
+          "Solo la pulizia esterna con solventi chimici aggressivi",
+          "Nessun controllo, poiché è un DPI monouso",
+          "La sostituzione del cinturino sottogola con un cordino qualunque"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "La sigla APVR indica un dispositivo che protegge le vie respiratorie:",
+        answers: [
+          "Solo dalla polvere",
+          "In modo temporaneo e privo di filtrazione",
+          "Attraverso la filtrazione oppure l’isolamento con aria o ossigeno indipendente",
+          "Incompatibile con l’uso simultaneo di casco"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "L’uniforme ignifuga da intervento deve essere conforme a:",
+        answers: [
+          "Solo agli standard di moda",
+          "Gli standard di sicurezza nazionali ed europei (es. EN 469 per indumenti di protezione in caso di incendi strutturali)",
+          "Non è obbligatorio nessun requisito",
+          "Esclusivamente l’EN ISO 9001"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "In base ai rischi, un DPI di I categoria protegge il lavoratore da:",
+        answers: [
+          "Rischi minimi (lievi abrasioni, contatto con sostanze di lieve entità, azioni superficiali)",
+          "Rischi di morte certa",
+          "Rischi chimici elevati",
+          "Radiazioni ionizzanti in centrali nucleari"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Un completo antifiamma può essere danneggiato da:",
+        answers: [
+          "Fiamme e calore eccessivi oltre i limiti di certificazione",
+          "Semplice uso in ufficio",
+          "Vento leggero",
+          "Coloranti a base di acqua"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Nell’impiego di guanti da intervento, è importante:",
+        answers: [
+          "Che siano sempre di taglia unica per tutti",
+          "Verificare la taglia corretta, l’integrità e che il materiale sia idoneo al tipo di rischio (calore, taglio, sostanze chimiche)",
+          "Non controllare mai la presenza di lacerazioni",
+          "Sostituirli solo ogni 10 anni"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Per garantire la massima sicurezza, le calzature VVF devono avere:",
+        answers: [
+          "Suola antiscivolo, puntale e lamina antiforo, protezione dal calore, eventuale resistenza a sostanze chimiche",
+          "Esclusivamente la fibbia superiore",
+          "Tacco alto per camminare meglio",
+          "Solo un buon isolante acustico"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Che differenza c’è tra un respiratore a filtro e uno isolante?",
+        answers: [
+          "Nessuna, sono la stessa cosa",
+          "Il filtrante depura l’aria circostante, mentre l’isolante fornisce aria da una fonte indipendente (bombola)",
+          "Il primo va usato sott’acqua, il secondo in ambienti terrestri",
+          "Quello a filtro è adatto solo a rischi elettrici"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Il cinturone di sicurezza può essere integrato con:",
+        answers: [
+          "Un semplice spago da cucina come cordino",
+          "Un discensore o un cordino retrattile omologato per ancorarsi in quota",
+          "Qualsiasi cinghia in tessuto scadente",
+          "Nessun tipo di accessorio"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Perché la sicurezza dei DPI è fondamentale negli interventi VVF?",
+        answers: [
+          "Per evitare costi elevati di manutenzione",
+          "Perché l’efficacia dei DPI può salvare la vita in presenza di rischi estremi (incendi, crolli, gas tossici)",
+          "Non è fondamentale, i VVF non sono esposti a grandi rischi",
+          "Per ridurre il consumo di estintori"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Le normative europee (EN) sui DPI per vigili del fuoco riguardano:",
+        answers: [
+          "Requisiti minimi di prestazione e metodi di prova per indumenti, caschi, guanti, calzature e APVR",
+          "Solo il colore obbligatorio",
+          "Esclusivamente le dimensioni del simbolo VVF",
+          "Aspetti di design e stile"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Un guanto di III categoria può essere richiesto quando:",
+        answers: [
+          "Si lavora in ufficio con documenti cartacei",
+          "Si affrontano rischi chimici, termici o meccanici di elevata gravità (es. fiamme, agenti chimici pericolosi)",
+          "La temperatura esterna è mite",
+          "Si vuole soltanto migliorare il grip"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Il completo antifiamma deve essere sempre accompagnato da:",
+        answers: [
+          "Scarpe da ginnastica comode",
+          "Un Gantt con i turni di servizio",
+          "Guanti resistenti al calore, elmo e calzature idonee per completare la protezione integrale",
+          "Mascherine chirurgiche"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Un elmo da intervento si considera non più sicuro se:",
+        answers: [
+          "Presenta crepe nella calotta, deformazioni o danni ai materiali di protezione",
+          "Ha soltanto un leggero graffio superficiale",
+          "È trascorso un mese dall’acquisto",
+          "Non è del colore preferito dal vigile"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "I respiratori isolanti sono indispensabili in spazi confinati perché:",
+        answers: [
+          "Pesano di meno dei respiratori a filtro",
+          "Garantiscono ossigeno o aria sicura indipendentemente dall’atmosfera circostante",
+          "Non richiedono addestramento",
+          "Proteggono dal rumore e dal calore eccessivo"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Quale di questi fattori NON influenza la scelta del DPI nel contesto VVF?",
+        answers: [
+          "Tipo di rischio (chimico, termico, meccanico)",
+          "Taglia e adattabilità all’operatore",
+          "Colorazione casuale e preferenze estetiche",
+          "Standard di sicurezza applicabili"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Per la sicurezza del Vigile del Fuoco, un DPI deve:",
+        answers: [
+          "Essere adattato al rischio e all’operatore, rispettando le norme vigenti",
+          "Essere sempre usato da più persone in contemporanea",
+          "Essere scaduto",
+          "Non avere alcun controllo periodico"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Per ridurre il rischio di ustioni, l’uniforme ignifuga deve:",
+        answers: [
+          "Essere fabbricata con materiali resistenti alla fiamma e al calore, certificati secondo le norme di riferimento",
+          "Essere in cotone leggero",
+          "Essere bagnata prima dell’intervento",
+          "Essere dotata di filo conduttore"
+        ],
+        correctAnswer: 0
+      },
+
+      // ================================
+      // 6) SICUREZZA SCENARI E POS (40)
+      // ================================
+      {
+        question: "Che cos'è la valutazione degli scenari in ambito Vigili del Fuoco?",
+        answers: [
+          "Un insieme di procedure per l'acquisto dei materiali di consumo",
+          "L’analisi preventiva di possibili rischi e condizioni operative sul luogo dell’intervento",
+          "Un elenco di attività commerciali autorizzate",
+          "Un documento che elenca soltanto i DPI obbligatori"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Il POS (Piano Operativo di Sicurezza) è:",
+        answers: [
+          "Un documento che definisce le misure di sicurezza specifiche per un cantiere o un’attività lavorativa",
+          "Una certificazione di qualità ambientale",
+          "Un dispositivo di protezione individuale per le vie respiratorie",
+          "La procedura di sanificazione dei mezzi VVF"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Quale dei seguenti aspetti NON rientra nella valutazione degli scenari d’intervento?",
+        answers: [
+          "Individuazione dei pericoli presenti (chimici, fisici, strutturali, ecc.)",
+          "Analisi dell’accessibilità e delle vie di fuga",
+          "Verifica dell’elenco anagrafico dei residenti in zona",
+          "Stima delle risorse (uomini e mezzi) necessarie"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Le procedure operative standard (POS) servono a:",
+        answers: [
+          "Stabilire linee guida univoche per agire in sicurezza e in modo coordinato",
+          "Ridurre il numero di operatori richiesti",
+          "Autorizzare modifiche strutturali in un edificio",
+          "Acquistare DPI in base al colore e non alle prestazioni"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "In un’operazione di soccorso, la prima fase di 'valutazione scenari' consiste in:",
+        answers: [
+          "Verificare esclusivamente i dispositivi radio",
+          "Identificare i potenziali pericoli e valutare l’entità dei rischi",
+          "Evacuare immediatamente qualsiasi persona incontrata",
+          "Attendere istruzioni senza compiere alcun sopralluogo"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Cosa si intende per 'rischio residuo' dopo l’applicazione delle misure di sicurezza?",
+        answers: [
+          "La totalità dei pericoli eliminati completamente",
+          "Il pericolo legato solo ai DPI",
+          "Il rischio che rimane anche dopo aver adottato tutte le procedure e i DPI previsti",
+          "Un rischio che si autoelimina con il tempo"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Nella stesura del POS, quali sono gli elementi fondamentali da considerare?",
+        answers: [
+          "L’elenco dei partecipanti al corso di formazione",
+          "Tipologia di lavorazioni, attrezzature impiegate, rischi potenziali, misure di prevenzione e DPI necessari",
+          "Solo il nome del responsabile del cantiere",
+          "Lo schema dei turni di riposo del personale"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "La definizione di DPI (Dispositivo di Protezione Individuale) prevede che:",
+        answers: [
+          "Si tratti di un dispositivo destinato a proteggere il lavoratore dai rischi per la salute e sicurezza",
+          "Sia un apparecchio di uso collettivo",
+          "Non abbia scadenza o manutenzione",
+          "Sia obbligatoriamente di colore rosso fuoco"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Quale dei seguenti DPI è particolarmente rilevante in uno scenario con rischio chimico?",
+        answers: [
+          "Scarpe antinfortunistiche senza puntale",
+          "Guanti e tuta protettiva resistenti ad agenti chimici specifici",
+          "Occhiali da sole standard",
+          "Grembiule in cotone leggero"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Nel contesto dei Vigili del Fuoco, le procedure operative standard (POS) sono utili per:",
+        answers: [
+          "Ridurre al minimo la gestione del personale",
+          "Assicurare uniformità di intervento, sicurezza ed efficacia nelle operazioni di soccorso",
+          "Creare il bilancio annuale del corpo",
+          "Elaborare nuove leggi sulla sicurezza sul lavoro"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "In fase di valutazione dell’ambiente operativo, è fondamentale:",
+        answers: [
+          "Ignorare la presenza di sostanze infiammabili",
+          "Conoscere e riconoscere i segnali di pericolo chimico, fisico o biologico",
+          "Rispettare soltanto il limite temporale di 30 minuti",
+          "Scegliere i DPI in base all’estetica"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Che relazione c’è tra la valutazione dei rischi e la scelta dei DPI?",
+        answers: [
+          "Una valutazione accurata dei rischi consente di individuare quali DPI siano necessari",
+          "Non esiste alcuna relazione",
+          "Prima si scelgono i DPI, poi si fa la valutazione",
+          "Dipende solo dal budget disponibile"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Che cosa significa 'misure di mitigazione del rischio' in un POS?",
+        answers: [
+          "L’adozione di metodi per ridurre la gravità o la probabilità di un rischio, ad es. procedure, DPI, barriere",
+          "L’incremento della forza lavoro in un cantiere",
+          "L’eliminazione totale di ogni rischio",
+          "Una dichiarazione di non responsabilità"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "In uno scenario con possibile crollo strutturale, quali DPI sono prioritari?",
+        answers: [
+          "Casco di protezione, scarpe anti-infortunistica e guanti antitaglio",
+          "Solo mascherina antipolvere",
+          "Cuffie antirumore e occhiali da sole",
+          "Nessun DPI è necessario"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Per garantire la sicurezza dello scenario, i Vigili del Fuoco devono:",
+        answers: [
+          "Concentrarsi unicamente sull’estinzione dell’incendio",
+          "Assicurare la zona, impedire l’accesso non autorizzato e valutare costantemente i rischi residui",
+          "Aprire tutte le porte e finestre per ventilare, senza ulteriori controlli",
+          "Fornire DPI a tutti i passanti"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Cos’è la 'check-list' di sicurezza all’interno di un POS?",
+        answers: [
+          "Un elenco di barriere architettoniche da installare",
+          "Un foglio che riporta soltanto i nominativi dei responsabili",
+          "Una lista di punti di controllo su procedure, DPI e condizioni ambientali da verificare prima e durante l’attività",
+          "Un programma informatico per gestire i turni"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Se in uno scenario sono presenti gas tossici, il POS deve prevedere:",
+        answers: [
+          "L’obbligo di sostare a lungo nell’area per abituarsi alla concentrazione di gas",
+          "La fornitura di respiratori isolanti o filtranti adeguati, procedure di decontaminazione e misure d’emergenza",
+          "Solo un cartello di pericolo generico",
+          "La presenza di un ventilatore domestico"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Che cos’è l’analisi SWOT nello studio di uno scenario?",
+        answers: [
+          "Un metodo per valutare Forze, Debolezze, Opportunità e Minacce di un’operazione o cantiere",
+          "Un tipo di mascherina monouso",
+          "Un acronimo per definire gli attrezzi antincendio",
+          "Una sigla associata ai guanti isolanti"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Le procedure operative standard (POS) possono includere:",
+        answers: [
+          "Solo la descrizione dei DPI di III categoria",
+          "Procedure di evacuazione, approccio all’incendio, uso di scale o funi, comunicazioni radio, ecc.",
+          "La gestione delle buste paga del personale",
+          "Il numero di emergenza 118"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Quale passo è prioritario nella valutazione di uno scenario con presenza di sostanze chimiche pericolose?",
+        answers: [
+          "Verificare i codici di pericolo (etichette, schede di sicurezza) e stabilire le misure di contenimento",
+          "Aprire rapidamente i contenitori",
+          "Indossare solo gli occhiali da sole",
+          "Ignorare la situazione in attesa di ulteriori ordini"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "In un intervento vigile del fuoco, chi stabilisce le procedure operative da adottare sul posto?",
+        answers: [
+          "Il Capo Squadra o il responsabile dell'intervento, in base alle linee guida (POS) e alla valutazione dei rischi",
+          "I passanti che osservano la scena",
+          "Soltanto il personale amministrativo",
+          "I colleghi di altri turni"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Il POS (Piano Operativo di Sicurezza) deve essere aggiornato:",
+        answers: [
+          "Una volta all’anno a prescindere dalle condizioni",
+          "Ogni volta che cambiano le condizioni operative, i rischi o le procedure in modo significativo",
+          "Soltanto per i cantieri all’aperto",
+          "Mai, è un documento fisso"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Nella valutazione di scenari, quali fattori climatici possono incidere sulla sicurezza?",
+        answers: [
+          "Temperatura, vento, pioggia e condizioni meteo estreme che possono complicare le operazioni",
+          "Solo la presenza di sole",
+          "La forza di gravità",
+          "La fase lunare"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Le procedure operative standard (POS) devono essere:",
+        answers: [
+          "Redatte in modo generico, senza dettagli",
+          "Aggiornate, chiare e comprensibili a tutti gli operatori",
+          "Riservate al solo personale amministrativo",
+          "Tenute segrete per questioni di privacy"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Per i Vigili del Fuoco, l’analisi degli scenari comprende anche la valutazione:",
+        answers: [
+          "Della storia degli interventi passati in quell’area",
+          "Dei social network della zona",
+          "Della resistenza alle fiamme di materiali e strutture, possibili cedimenti, percorsi di propagazione, ecc.",
+          "Solo dell’altezza dei mezzi a disposizione"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Che differenza c’è tra un DPI di I e III categoria?",
+        answers: [
+          "Nessuna differenza sostanziale",
+          "La I categoria protegge da rischi minori, la III da rischi gravissimi o mortali",
+          "La III è sempre monouso",
+          "La I è dedicata agli impiegati d’ufficio"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "In un cantiere o scenario definito ad 'alto rischio', il POS deve specificare:",
+        answers: [
+          "La marca degli estintori",
+          "Misure aggiuntive di prevenzione, procedure di emergenza, DPI speciali, sistemi di allarme",
+          "Il numero massimo di giorni di lavoro",
+          "Le ferie del personale"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Qual è il vantaggio di avere procedure operative standard (POS) ben definite?",
+        answers: [
+          "Aumentare i costi di gestione",
+          "Ridurre la confusione nelle fasi critiche e migliorare la sicurezza di tutti gli operatori",
+          "Eliminare la necessità di formazione",
+          "Disporre di meno DPI"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Se durante la valutazione dello scenario si rileva un rischio non contemplato inizialmente nel POS, occorre:",
+        answers: [
+          "Ignorarlo e proseguire",
+          "Aggiornare le procedure e/o adottare misure aggiuntive per gestire il nuovo rischio",
+          "Cambiare immediatamente cantiere",
+          "Fermare l’intervento senza possibilità di ripresa"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "I DPI devono essere utilizzati:",
+        answers: [
+          "Solo se il Capo Squadra lo richiede esplicitamente",
+          "Sempre in relazione ai rischi identificati e secondo quanto previsto dal POS",
+          "Unicamente dai neoassunti",
+          "Come abbigliamento di riserva nel magazzino"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Il POS per un intervento complesso può includere procedure di evacuazione. In tal caso, è importante:",
+        answers: [
+          "Che tutti gli operatori conoscano i percorsi di fuga e i punti di raccolta",
+          "Fornire solo il percorso più lungo",
+          "Non informare gli operatori per evitare il panico",
+          "Avere almeno un ascensore dedicato"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Quale di queste è una procedura operativa standard in caso di incendio in ambiente chiuso?",
+        answers: [
+          "Entrare sempre senza DPI per valutare la situazione",
+          "Verificare la presenza di vittime, controllare la tenuta delle strutture, ventilare correttamente, usare DPI adatti (autorespiratore, tute ignifughe)",
+          "Fermarsi sulla soglia per almeno 15 minuti",
+          "Scegliere di non usare l’acqua per evitare danni"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "La 'gerarchia delle misure di protezione' prevede che:",
+        answers: [
+          "Prima si intervenga alla fonte (eliminazione o riduzione del rischio), poi si usino protezioni collettive e, infine, DPI individuali",
+          "Si usino sempre e solo i DPI più costosi",
+          "Si agisca soltanto sulla buona volontà degli operatori",
+          "Non esiste una gerarchia, tutte le misure sono uguali"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "In uno scenario con presenza di polveri fini e materiali fibrosi, il POS suggerirà l’uso di:",
+        answers: [
+          "Un semplice elmo con visiera",
+          "Mascherine filtranti adeguate (FFP2/FFP3) o respiratori specifici, oltre a occhiali/visiera",
+          "Solo guanti da giardino",
+          "Nessun DPI, le polveri sono innocue"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "La valutazione degli scenari è un processo che:",
+        answers: [
+          "Si fa una sola volta all’inizio dell’anno",
+          "Deve essere continuo e dinamico, aggiornato in base all’evoluzione della situazione",
+          "Dipende esclusivamente dal POS di un cantiere limitrofo",
+          "Si affida a un software di calcolo senza sopralluoghi"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Che cosa indica il termine 'debriefing' post-intervento in un contesto Vigili del Fuoco?",
+        answers: [
+          "Il controllo della biancheria di servizio",
+          "La fase di analisi finale in cui si valutano criticità, efficacia delle procedure POS e eventuali migliorie future",
+          "L’elenco delle ammende da comminare",
+          "Un documento di marketing"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Oltre ai DPI, il POS può prescrivere protezioni collettive come:",
+        answers: [
+          "Barriere fisiche, parapetti, segnaletica, sistemi di aspirazione fumi, ventilazioni forzate, ecc.",
+          "Solo un bagno chimico aggiuntivo",
+          "Musica ad alto volume per tenere svegli gli operatori",
+          "Uniformi vistose per i passanti"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Se un DPI risulta danneggiato o non più conforme, il POS prevede che:",
+        answers: [
+          "Si continui a usarlo finché non si rompe del tutto",
+          "Venga sostituito immediatamente con uno integro e adeguato",
+          "Si metta da parte per un utilizzo successivo",
+          "Non si informi nessuno"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Il POS deve essere accessibile a tutti gli operatori perché:",
+        answers: [
+          "È un requisito obbligatorio in modo che possano conoscere procedure, rischi e DPI da utilizzare",
+          "Contiene ricette di pronto soccorso",
+          "Lo richiede la Polizia Locale",
+          "Non è necessario che lo leggano"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Prima di iniziare qualsiasi intervento, la valutazione dello scenario deve:",
+        answers: [
+          "Essere svolta da personale formato, tenendo conto di tutte le variabili che possono evolvere rapidamente",
+          "Limitarsi ai rischi noti dell’anno precedente",
+          "Essere omessa se l’operazione sembra semplice",
+          "Diventare un documento segreto"
+        ],
+        correctAnswer: 0
+      }
+    ]; // Fine dei 240 (6 set da 40)
+
+    // ================================
+    // 7) PREVENZIONI INCENDIO (40)
+    // ================================
+    // Aggiungiamo direttamente queste 40 al questionBank:
+
+    const prevenzioneIncendiSet = [
+      {
+        question: "Che cosa si intende per 'prevenzione incendi' secondo la normativa vigente?",
+        answers: [
+          "Un insieme di regole per ridurre esclusivamente i danni strutturali",
+          "La disciplina che stabilisce misure di sicurezza per evitare l’insorgenza di incendi e limitarne le conseguenze",
+          "La parte burocratica relativa all’acquisto degli estintori",
+          "Unicamente la manutenzione dei mezzi dei Vigili del Fuoco"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Le misure preventive sono orientate a:",
+        answers: [
+          "Evitare totalmente la protezione delle vie di fuga",
+          "Ridurre la probabilità che un incendio si inneschi",
+          "Sostituire i sistemi di spegnimento automatico",
+          "Aumentare il carico di incendio in un ambiente"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Le misure protettive in ambito antincendio mirano a:",
+        answers: [
+          "Rendere più complicata l’evacuazione",
+          "Ridurre il numero di estintori necessari",
+          "Mitigare gli effetti di un incendio quando questo si è già innescato",
+          "Incrementare la temperatura interna ai locali"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "La protezione 'attiva' antincendio si riferisce a:",
+        answers: [
+          "Dispositivi e impianti che intervengono in caso di incendio (es. estintori, impianti sprinkler)",
+          "Esclusivamente barriere passive in muratura",
+          "L’installazione di porte e finestre metalliche",
+          "La rimozione di ogni sostanza infiammabile dall’edificio"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "La protezione 'passiva' antincendio si basa su:",
+        answers: [
+          "L’utilizzo di materiali o soluzioni costruttive che rallentano la propagazione di fiamme e fumi",
+          "Sistemi di allarme sonori e segnaletica luminosa",
+          "Solo la presenza di personale addetto al primo soccorso",
+          "Manichette e pompe ad alta pressione"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Il concetto di 'rischio' in prevenzione incendi comprende:",
+        answers: [
+          "La sola valutazione economica dei danni",
+          "La probabilità che un evento incendiario si verifichi e l’entità delle sue possibili conseguenze",
+          "Un elenco di materiali combustibili presenti",
+          "La velocità di intervento dei Vigili del Fuoco"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Il DPR 1 agosto 2011 n.151 elenca 80 attività soggette a controlli di prevenzione incendi. Quale caratteristica comune possiedono queste attività?",
+        answers: [
+          "Non producono alcun materiale combustibile",
+          "Sono accomunate da potenziali rischi d’incendio significativi",
+          "Sono tutte attività agricole di piccole dimensioni",
+          "Non richiedono autorizzazioni antincendio"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Nell’ambito del DPR 151/2011, l’attività n.3 si riferisce tipicamente a:",
+        answers: [
+          "Locali di trattenimento e pubblico spettacolo",
+          "Depositi e rivendite di GPL o altri gas combustibili con specifiche capacità",
+          "Stabilimenti siderurgici di grosse dimensioni",
+          "Lavorazioni insalubri di tipo 'A'"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "L’attività n.4 del DPR 151/2011 riguarda di norma:",
+        answers: [
+          "Autorimesse con capienza > 9 autoveicoli",
+          "Centrali termiche ad acqua surriscaldata",
+          "Locali di pubblico spettacolo con specifiche caratteristiche (es. capienza >100 persone)",
+          "Esclusivamente depositi di carburo di calcio"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Le attività n.12 e n.13 del DPR 151/2011 trattano rispettivamente:",
+        answers: [
+          "Depositi di legnami e sostanze esplosive",
+          "Strutture sanitarie e centrali termiche a gas metano",
+          "Vettori energetici liquidi e stoccaggi a temperatura criogenica",
+          "Locali di pubblico spettacolo e impianti sportivi all'aperto"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "L’attività n.34 del DPR 151/2011 riguarda solitamente:",
+        answers: [
+          "Aziende e uffici con affollamento superiore a 300 persone",
+          "Attività commerciali con superficie superiore a 400 mq",
+          "Attività con impianti di climatizzazione di potenza termica > 350 kW",
+          "Deposito o vendita di fitofarmaci"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Le attività n.37 e n.44 del DPR 151/2011 fanno riferimento, rispettivamente, a:",
+        answers: [
+          "Depositi di oli minerali e distributori di carburante per uso privato",
+          "Falegnamerie e impianti di verniciatura a spruzzo",
+          "Locali ad uso medico-chirurgico e stabilimenti ospedalieri",
+          "Impianti di stoccaggio rifiuti e depositi di esplosivi"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "L’attività n.53 e n.54 del DPR 151/2011 riguardano:",
+        answers: [
+          "Impianti di stampaggio materie plastiche",
+          "Strutture ricettive turistico-alberghiere",
+          "Depositi e lavorazione di sostanze alimentari zuccherine e farine",
+          "Condotte di gas combustibili e depositi di gas in bombole"
+        ],
+        correctAnswer: 3
+      },
+      {
+        question: "Le attività n.65, 66, 67, 68, 69, 70 elencate nel DPR 151/2011 raggruppano:",
+        answers: [
+          "Strutture con impianti elettrici ad alta tensione, trasformatori e cavi interrati",
+          "Fabbriche di esplosivi e polveri piriche",
+          "Impianti di produzione, deposito, vendita di sostanze infiammabili e comburenti (es. combustibili solidi, liquidi e gassosi)",
+          "Officine meccaniche di precisione"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Le attività n.74 e n.75 del DPR 151/2011 includono:",
+        answers: [
+          "Locali destinati allo stoccaggio di generi alimentari surgelati",
+          "Impianti di trattamento superficiale dei metalli",
+          "Sale da concerto con affollamento >2000 persone",
+          "Attività che prevedono stoccaggio e manipolazione di materiali combustibili (legname, fibre, pneumatici, ecc.)"
+        ],
+        correctAnswer: 3
+      },
+      {
+        question: "Qual è l’obiettivo principale del DM 7 agosto 2012?",
+        answers: [
+          "Regolamentare la vendita di estintori online",
+          "Stabilire le modalità di presentazione delle istanze e la documentazione da allegare per i procedimenti di prevenzione incendi",
+          "Eliminare l’obbligo di collaudo per gli impianti sprinkler",
+          "Definire il limite di potenza per le caldaie condominiali"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Secondo il DM 7 agosto 2012, la documentazione allegata alle istanze di prevenzione incendi deve:",
+        answers: [
+          "Essere sempre presentata in triplice copia cartacea e non online",
+          "Includere elaborati tecnici, relazioni e quanto necessario a dimostrare la conformità alle norme di prevenzione",
+          "Consistere esclusivamente in autocertificazioni",
+          "Essere generica e non dettagliata"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Le misure di prevenzione incendi includono valutazioni su:",
+        answers: [
+          "L’impatto estetico della struttura",
+          "La disposizione di arredi e piante ornamentali",
+          "I carichi d’incendio, i percorsi di esodo e i materiali impiegati",
+          "La tempistica di reperimento dei fondi europei"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Un esempio di protezione passiva è:",
+        answers: [
+          "Un impianto di spegnimento automatico a pioggia (sprinkler)",
+          "Un estintore portatile a polvere",
+          "La realizzazione di compartimentazioni antincendio con porte REI",
+          "L’impiego di lance antincendio con manichetta"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Un sistema di rivelazione automatica di fumo e calore si definisce:",
+        answers: [
+          "Misura passiva",
+          "Misura attiva di protezione",
+          "Documentazione obbligatoria del DM 7 agosto 2012",
+          "Attività soggetta a DPR 151/2011, n.70"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Il carico di incendio di un edificio dipende:",
+        answers: [
+          "Dal colore delle pareti interne",
+          "Dalla somma dei materiali combustibili presenti e dal loro potere calorifico",
+          "Dal numero di persone che lo frequentano",
+          "Esclusivamente dalla potenza dell’impianto termico"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Le vie di esodo devono garantire:",
+        answers: [
+          "Una velocità di fuga minima di 10 km/h",
+          "L’assenza di ostacoli, larghezza sufficiente, segnaletica e illuminazione d’emergenza",
+          "Un rapporto altezza/larghezza costante",
+          "La presenza di dispositivi di rilevazione gas inquinanti"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Nella prevenzione incendi, il 'principio di compartimentazione' serve a:",
+        answers: [
+          "Creare spazi più belli architettonicamente",
+          "Favorire il propagarsi di fiamme e fumi in breve tempo",
+          "Suddividere l’edificio in zone isolate, contenendo l’incendio in un compartimento specifico",
+          "Ridurre la portata d’acqua degli idranti"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Quale di questi è un requisito tipico richiesto dal DPR 151/2011 per le attività soggette al controllo VVF?",
+        answers: [
+          "Predisporre un piano di sicurezza e di evacuazione in caso di incendio, quando previsto",
+          "Dichiarare unicamente il volume totale dell’edificio",
+          "Presentare esclusivamente un’asseverazione notarile",
+          "Eliminare le scale di sicurezza esterne"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "La valutazione del rischio d’incendio in un ambiente di lavoro deve:",
+        answers: [
+          "Essere fatta ogni 10 anni, senza aggiornamenti",
+          "Tenere conto delle caratteristiche dei lavoratori, dei materiali e dei processi, ed essere aggiornata in caso di modifiche significative",
+          "Evitare di comprendere gli impianti elettrici",
+          "Basarsi solo su stime economiche"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Secondo il DM 7 agosto 2012, l’istanza di SCIA (Segnalazione Certificata di Inizio Attività) in materia di prevenzione incendi prevede:",
+        answers: [
+          "La necessità di un sopralluogo preliminare obbligatorio dei Vigili del Fuoco",
+          "L’autodichiarazione di conformità dell’attività alle norme antincendio, con allegati tecnici",
+          "L’invio esclusivo via PEC dell’elenco lavoratori",
+          "La completa assenza di responsabilità del titolare"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Le misure gestionali di prevenzione incendi comprendono:",
+        answers: [
+          "La scelta dei colori delle pareti",
+          "I controlli periodici di impianti e attrezzature, la formazione del personale, le prove d’evacuazione",
+          "La riduzione del numero di estintori in modo casuale",
+          "L’aumento del carico di fuoco per testare la resistenza"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Per un locale pubblico che rientra in attività n.4 del DPR 151/2011, la presenza di vie di esodo adeguate è finalizzata a:",
+        answers: [
+          "Consentire l’ingresso ad animali domestici di grossa taglia",
+          "Migliorare la circolazione dell’aria e ridurre l’umidità",
+          "Garantire un’evacuazione sicura e rapida degli occupanti in caso d’incendio",
+          "Eliminare la necessità di impianti sprinkler"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Le distanze di sicurezza antincendio servono a:",
+        answers: [
+          "Ridurre lo spazio tra pareti e scaffalature interne",
+          "Impedire a chiunque di avvicinarsi all’edificio",
+          "Evitare la propagazione d’incendio fra fabbricati o fra parti di uno stesso fabbricato",
+          "Semplificare la richiesta di agibilità"
+        ],
+        correctAnswer: 2
+      },
+      {
+        question: "Nel DPR 151/2011, la 'categoria' (A, B, C) dell’attività soggetta è determinata da:",
+        answers: [
+          "Il colore delle pareti esterne",
+          "La pericolosità dell’attività, il quantitativo di materiale combustibile, l’affollamento o la complessità impiantistica",
+          "Il solo numero dei lavoratori impiegati",
+          "Un criterio di localizzazione geografica"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Le porte tagliafuoco (REI) fanno parte delle:",
+        answers: [
+          "Misure di protezione attiva",
+          "Misure di protezione passiva",
+          "Sostituzioni di arredi e scaffalature",
+          "Procedure di evacuazione"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Nella fase di progettazione antincendio di un edificio, è fondamentale:",
+        answers: [
+          "Considerare tutte le possibili vie di esodo e il carico d’incendio, integrando protezioni attive e passive",
+          "Acquistare estintori a caso",
+          "Scegliere la pittura ignifuga senza valutare i materiali strutturali",
+          "Concentrarsi unicamente sulla parte elettrica"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "In un centro commerciale (attività n.34 del DPR 151/2011) con notevole affollamento, è importante:",
+        answers: [
+          "Eliminare la segnaletica di emergenza per evitare confusione",
+          "Prevedere impianti di rilevazione, allarme ed estinzione, vie di fuga ben segnalate e controlli sul carico d’incendio",
+          "Disporre i materiali combustibili in aree accessibili al pubblico",
+          "Ridurre a zero la ventilazione"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Le normative di prevenzione incendi prescrivono che gli impianti di spegnimento automatico siano periodicamente:",
+        answers: [
+          "Disattivati per ridurre i costi di manutenzione",
+          "Testati e manutenuti per assicurare il corretto funzionamento in emergenza",
+          "Raccolti in un’unica stanza chiusa a chiave",
+          "Sostituiti integralmente ogni 2 anni a prescindere"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Nel DM 7 agosto 2012, oltre alla SCIA, può essere prevista:",
+        answers: [
+          "La valutazione dei requisiti di resistenza sismica",
+          "La necessità di presentare progetti per le attività più complesse (Categoria B o C) e di ottenere un parere di conformità dei Vigili del Fuoco",
+          "Un semplice modulo di autodichiarazione senza allegati",
+          "La sola richiesta di un permesso sanitario"
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: "Qual è la finalità delle verifiche e dei sopralluoghi da parte dei Vigili del Fuoco dopo la presentazione della SCIA?",
+        answers: [
+          "Verificare la conformità dell’attività alle misure di sicurezza dichiarate e alle norme vigenti",
+          "Punire automaticamente il responsabile dell’attività",
+          "Contare il numero di estintori e imporre sanzioni in caso di eccesso",
+          "Verificare la categoria catastale dell’edificio"
+        ],
+        correctAnswer: 0
+      },
+      {
+        question: "Nel contesto delle misure di protezione attiva, gli estintori portatili devono:",
+        answers: [
+          "Essere installati solo in luoghi nascosti per evitare vandalismi",
+          "Avere capacità estinguente adeguata al rischio e distribuiti in modo che siano facilmente accessibili",
+          "Essere tutti uguali da 1 kg ciascuno",
+          "Essere collocati soltanto su scaffali ad almeno 3 metri di altezza"
+        ],
+        correctAnswer: 1
+      }
+    ]; // Fine dei 280 (7 set da 40)
+
+    // ================================
+    // 8) POLIZIA GIUDIZIARIA (40)
+    // ================================
+    // Aggiungiamo direttamente queste 40 al questionBank:
+	  
+	const PoliziaGiudiziariaSet = [
+     {
+        question: "Quali sono le tre funzioni fondamentali dello Stato italiano?",
+        answers: [
+        "La funzione legislativa, esecutiva e giudiziaria",
+        "La funzione militare, commerciale e sanitaria",
+        "La funzione tributaria, notarile e amministrativa",
+        "La funzione internazionale, economica e sociale"
+      ],
+        correctAnswer: 0
+     },
+     {
+      question: "Che cos’è un reato, secondo il codice penale italiano?",
+      answers: [
+        "Un semplice illecito amministrativo",
+        "Un fatto umano tipico, antigiuridico e colpevole punito dalla legge con sanzioni penali",
+        "Qualunque comportamento contrario al buon costume",
+        "Una violazione di norme civilistiche sul risarcimento"
+      ],
+      correctAnswer: 1
+     },
+     {
+      question: "La Polizia Giudiziaria ha il compito primario di:",
+      answers: [
+        "Assistere il Prefetto nell’organizzazione della Protezione Civile",
+        "Reprimere il contrabbando su aree portuali",
+        "Ricercare ed assicurare alla giustizia gli autori di reati, raccogliendo le prove",
+        "Concedere le autorizzazioni di polizia in ambito amministrativo"
+      ],
+      correctAnswer: 2
+     },
+     {
+      question: "Come si distingue, in generale, la Polizia Amministrativa dalla Polizia Giudiziaria?",
+      answers: [
+        "La Polizia Amministrativa agisce per prevenire e disciplinare, la Polizia Giudiziaria per investigare e reprimere reati",
+        "Non esiste alcuna differenza, sono sinonimi",
+        "La Polizia Amministrativa ha competenza solo sulle persone, la Giudiziaria solo sulle cose",
+        "La Polizia Giudiziaria esercita funzioni esecutive di governo e la Polizia Amministrativa funzioni di controllo"
+      ],
+      correctAnswer: 0
+     },
+     {
+      question: "Secondo il codice di procedura penale, chi sono gli 'Ufficiali di Polizia Giudiziaria'?",
+      answers: [
+        "Personale del Ministero della Difesa con speciali funzioni doganali",
+        "Agenti di qualsiasi polizia locale incaricati dal Sindaco",
+        "Coloro che dirigono l'attività della PG e coordinano gli agenti, con specifici requisiti (es. Ufficiali CC, PS, GdF, alcuni VV.F.)",
+        "Qualunque cittadino munito di delega prefettizia"
+      ],
+      correctAnswer: 2
+     },
+     {
+      question: "Come possono essere inquadrati i Vigili del Fuoco ai fini della Polizia Giudiziaria?",
+      answers: [
+        "Sono sempre considerati Ufficiali di Polizia Giudiziaria",
+        "Sono sempre considerati Agenti di Polizia Giudiziaria, laddove la legge lo preveda",
+        "Non hanno mai alcuna funzione di polizia",
+        "Hanno competenza solo su reati stradali"
+      ],
+      correctAnswer: 1
+     },
+     {
+      question: "Gli Agenti di Pubblica Sicurezza tra i Vigili del Fuoco:",
+      answers: [
+        "Non esistono, poiché i VV.F. non svolgono pubblica sicurezza",
+        "Hanno compiti limitati alla regolamentazione del traffico stradale",
+        "Possono svolgere funzioni di tutela dell'ordine pubblico in situazioni di emergenza e, se designati, essere Agenti di PS",
+        "Svolgono esattamente le stesse funzioni dei Carabinieri"
+      ],
+      correctAnswer: 2
+     },
+     {
+      question: "Qual è la struttura organizzativa fondamentale della Polizia Giudiziaria in Italia?",
+      answers: [
+        "È composta da reparti autonomi senza coordinamento",
+        "Si articola in Ufficiali e Agenti di PG sotto la direzione dell’Autorità Giudiziaria",
+        "È basata solo su corpi speciali a carattere militare",
+        "Si regge unicamente sull’iniziativa dei singoli cittadini"
+      ],
+      correctAnswer: 1
+     },
+     {
+      question: "Le azioni preliminari svolte dalla Polizia Giudiziaria davanti a un possibile reato consistono in:",
+      answers: [
+        "Applicare sanzioni amministrative immediate",
+        "Concedere autorizzazioni di polizia",
+        "Assicurarsi delle fonti di prova, identificare i soggetti coinvolti e avvisare il PM",
+        "Eseguire pattugliamenti notturni su tutto il territorio"
+      ],
+      correctAnswer: 2
+     },
+     {
+      question: "Che cosa si intende per 'funzioni di polizia giudiziaria'?",
+      answers: [
+        "Le funzioni consultive attribuite al Ministero della Giustizia",
+        "Le funzioni di vigilanza sui contratti privati",
+        "Il compito di prevenzione e accertamento di reati, coordinato dall'Autorità Giudiziaria",
+        "Esclusivamente la compilazione di verbali stradali"
+      ],
+      correctAnswer: 2
+     },
+     {
+      question: "Nel procedimento penale, la Polizia Giudiziaria:",
+      answers: [
+        "Collabora con il Pubblico Ministero nelle indagini preliminari e nell’esecuzione degli atti di giustizia",
+        "Non ha alcun ruolo, poiché tutto compete unicamente al giudice",
+        "Decide autonomamente sulla colpevolezza",
+        "Interviene solo nei processi civili"
+      ],
+      correctAnswer: 0
+     },
+     {
+      question: "Il regolamento di servizio del Corpo Nazionale dei Vigili del Fuoco disciplina anche:",
+      answers: [
+        "Le mansioni di Polizia Giudiziaria negli ambiti di competenza VV.F.",
+        "Le procedure di bilancio del Ministero della Cultura",
+        "Le norme doganali per l’import di merci",
+        "L’impiego dei droni per finalità turistiche"
+      ],
+      correctAnswer: 0
+     },
+     {
+      question: "Il D.Lgs. 217/2005, riguardante l'ordinamento del personale del CNVVF, prevede che:",
+      answers: [
+        "Non si parli di polizia giudiziaria per i Vigili del Fuoco",
+        "Alcune qualifiche dei VV.F. possano essere dotate di poteri di polizia giudiziaria su specifiche materie",
+        "Ogni Vigile del Fuoco sia obbligato a portare un’arma di ordinanza",
+        "Si istituisca la funzione di Procuratore specializzato nel CNVVF"
+      ],
+      correctAnswer: 1
+     },
+     {
+      question: "I reati di competenza dei Vigili del Fuoco previsti dal codice penale di solito riguardano:",
+      answers: [
+        "L’illecito uso di droni",
+        "Infrazioni doganali internazionali",
+        "La prevenzione incendi, l’incolumità pubblica e la sicurezza nei luoghi di lavoro",
+        "La tutela della privacy e dei dati personali"
+      ],
+      correctAnswer: 2
+     },
+     {
+      question: "I reati in materia di salute e sicurezza nei luoghi di lavoro (D.Lgs. 81/08) possono coinvolgere i VV.F. in quanto:",
+      answers: [
+        "Organo di vigilanza e accertamento su determinati reati correlati a sicurezza antincendio",
+        "Unico ente abilitato a rilasciare patenti di guida",
+        "Polizia doganale principale su tutto il territorio",
+        "Garanti delle sanzioni amministrative su attività commerciali"
+      ],
+      correctAnswer: 0
+     },
+     {
+      question: "La Polizia Giudiziaria può procedere d'iniziativa in caso di reato flagrante. Ciò significa che:",
+      answers: [
+        "Bisogna attendere l'autorizzazione del Sindaco",
+        "Può arrestare o fermare se sorprende il soggetto nell’atto di commettere il reato o subito dopo",
+        "È obbligatorio rivolgersi prima all’esercito",
+        "Si può procedere solo su segnalazione scritta del Prefetto"
+      ],
+      correctAnswer: 1
+     },
+     {
+      question: "Quale di questi compiti NON rientra nelle funzioni di Polizia Giudiziaria?",
+      answers: [
+        "Ricerca dei colpevoli di reati",
+        "Raccolta di prove e informazioni",
+        "Ricevere denunce e querele",
+        "Rilasciare patenti di guida A, B, C"
+      ],
+      correctAnswer: 3
+     },
+     {
+      question: "La Polizia Amministrativa, rispetto a quella Giudiziaria, si caratterizza per:",
+      answers: [
+        "Attività di prevenzione, vigilanza e disciplina di situazioni rilevanti per l’interesse pubblico (es. licenze, autorizzazioni)",
+        "Funzioni di cattura dei ricercati a livello internazionale",
+        "Esecuzione di pene detentive",
+        "Coordinamento delle operazioni speciali antimafia"
+      ],
+      correctAnswer: 0
+     },
+     {
+      question: "In che modo i Vigili del Fuoco collaborano con il Pubblico Ministero nel procedimento penale?",
+      answers: [
+        "Eseguendo attività di sopralluogo su incendi o crolli e trasmettendo i risultati delle indagini tecniche",
+        "Redigendo sentenze di condanna",
+        "Assolvendo dalle imputazioni i responsabili di reati",
+        "Rilasciando autorizzazioni doganali di import"
+      ],
+      correctAnswer: 0
+     },
+     {
+      question: "Gli ufficiali di Polizia Giudiziaria, all’interno del CNVVF, possono:",
+      answers: [
+        "Coordinare gli agenti nell’accertamento di reati legati alla sicurezza antincendio",
+        "Servire da interpreti nelle cause civili",
+        "Svolgere soltanto compiti contabili",
+        "Rilasciare patenti di guida professionali"
+      ],
+      correctAnswer: 0
+     },
+     {
+      question: "Quali sono le principali fasi del procedimento penale che coinvolgono la Polizia Giudiziaria?",
+      answers: [
+        "Piano strutturale di protezione civile e nomina governativa",
+        "Indagini preliminari, attività di reperimento prove, esecuzione di misure cautelari su delega del PM",
+        "Firma dei decreti-legge e promulgazione di sentenze finali",
+        "Accettazione di atti notarili e registrazione di brevetti"
+      ],
+      correctAnswer: 1
+     },
+     {
+      question: "Che differenza c’è tra reato doloso e reato colposo, di interesse per i VV.F.?",
+      answers: [
+        "Nessuna, sono sinonimi nel codice penale",
+        "Doloso se commesso con volontà e consapevolezza, colposo se dovuto a negligenza o imprudenza",
+        "Doloso solo se si tratta di disastri ambientali, colposo in tutti gli altri casi",
+        "Colposo se commesso per motivi futili, doloso se è su delega del Prefetto"
+      ],
+      correctAnswer: 1
+     },
+     {
+      question: "Nell’ambito della sicurezza nei luoghi di lavoro, che tipo di reati possono competere ai VV.F. per la parte antincendio?",
+      answers: [
+        "Reati di omessa sorveglianza doganale",
+        "Violazioni delle disposizioni in materia di prevenzione incendi e mancate misure di sicurezza che configurano reato penale",
+        "Reati di contrabbando di tabacchi",
+        "Ipotesi di furto d’energia elettrica"
+      ],
+      correctAnswer: 1
+     },
+     {
+      question: "Quando i Vigili del Fuoco svolgono indagini su un incendio doloso:",
+      answers: [
+        "Operano come semplice Polizia Amministrativa",
+        "Possono agire come Polizia Giudiziaria, raccogliendo elementi di prova per il PM",
+        "Non hanno alcun potere, deve intervenire solo la polizia municipale",
+        "Si limitano a spegnere l’incendio senza effettuare accertamenti"
+      ],
+      correctAnswer: 1
+     },
+     {
+      question: "Il regolamento di servizio CNVVF, in relazione alla Polizia Giudiziaria, specifica:",
+      answers: [
+        "I limiti di età per l’attività di PG",
+        "Procedure interne per la corretta trasmissione di notizie di reato all’Autorità Giudiziaria",
+        "L’assoluta incompatibilità tra VV.F. e qualifica di PG",
+        "La competenza esclusiva sui reati informatici"
+      ],
+      correctAnswer: 1
+     },
+     {
+      question: "Un Vigile del Fuoco, in qualità di Agente di PG, può ricevere denunce?",
+      answers: [
+        "No, solo gli Ufficiali di PG possono",
+        "Sì, ma soltanto su delega del Sindaco",
+        "Sì, se la legge lo prevede, trasmettendole poi all’Ufficiale o al PM",
+        "Mai, è compito esclusivo del Prefetto"
+      ],
+      correctAnswer: 2
+     },
+     {
+      question: "Il Pubblico Ministero può delegare ai VV.F. compiti d’indagine in caso di reato di competenza?",
+      answers: [
+        "No, perché i VV.F. non svolgono attività di indagine",
+        "Sì, può delegare accertamenti specifici (es. rilievi tecnici, sopralluoghi) ad Agenti/ Ufficiali di PG all’interno del CNVVF",
+        "Sì, ma solo in presenza dei Carabinieri",
+        "È obbligatorio che intervenga la Guardia di Finanza"
+      ],
+      correctAnswer: 1
+     },
+     {
+      question: "I principali reati di competenza VV.F. nella sicurezza sui luoghi di lavoro riguardano:",
+      answers: [
+        "Scarsa illuminazione pubblica e parcheggi abusivi",
+        "Reati connessi alla mancata prevenzione incendi e a omesse misure di sicurezza antincendio",
+        "Violazioni in materia di brevetti industriali",
+        "Falsificazione di documenti anagrafici"
+      ],
+      correctAnswer: 1
+     },
+     {
+      question: "Se un reato viene scoperto dai Vigili del Fuoco durante un normale controllo antincendio, cosa devono fare?",
+      answers: [
+        "Sanzionare amministrativamente e chiudere l’attività senza informare nessun altro",
+        "Non hanno obblighi, perché la competenza è della Polizia Stradale",
+        "Devono riferire alla Procura della Repubblica, redigendo eventuale informativa di reato",
+        "Conservare le prove per un uso interno, senza darne pubblicità"
+      ],
+      correctAnswer: 2
+     },
+     {
+      question: "Un ‘arresto in flagranza’ da parte dei VV.F. è possibile se:",
+      answers: [
+        "Il Vigile del Fuoco riveste la qualifica di Agente/ Ufficiale di PG e il reato è in flagranza per la legge",
+        "Si tratta di contravvenzioni comunali",
+        "Lo ordina il Sindaco con un’ordinanza contingibile e urgente",
+        "Si commette un illecito di natura esclusivamente amministrativa"
+      ],
+      correctAnswer: 0
+     },
+     {
+      question: "Il D.Lgs. 217/2005 stabilisce che i Vigili del Fuoco possono svolgere funzioni di polizia giudiziaria:",
+      answers: [
+        "Soltanto se nominati dal Prefetto di competenza per singolo intervento",
+        "In base alle qualifiche funzionali e limitatamente ai reati connessi ai compiti istituzionali (incendi, crolli, sicurezza antincendio)",
+        "Non è previsto alcun potere di PG nel corpo CNVVF",
+        "Soltanto a bordo dei mezzi di servizio"
+      ],
+      correctAnswer: 1
+     },
+     {
+      question: "Nel procedimento penale, i verbali redatti dai Vigili del Fuoco con funzioni di PG:",
+      answers: [
+        "Non hanno alcun valore legale",
+        "Costituiscono atti validi per la fase delle indagini, trasmessi all’Autorità Giudiziaria",
+        "Sono validi solo per i reati di terrorismo",
+        "Hanno valore di semplice appunto informale"
+      ],
+      correctAnswer: 1
+     },
+     {
+      question: "Il reato di “incendio doloso” (art. 423 c.p.) rientra nelle competenze dei VV.F. in quanto:",
+      answers: [
+        "È di competenza esclusiva di Polizia e Carabinieri",
+        "Vi è un obbligo di informativa di reato e di raccolta di elementi tecnici sugli inneschi",
+        "Non è mai di competenza dei VV.F.",
+        "Si tratta di un reato amministrativo"
+      ],
+      correctAnswer: 1
+     },
+     {
+      question: "Quando un Vigile del Fuoco, in qualità di Agente di PG, viene a conoscenza di un reato perseguibile d’ufficio:",
+      answers: [
+        "Deve far finta di nulla e proseguire la normale attività di vigilanza",
+        "Ne informa immediatamente l’Ufficiale di PG o direttamente la Procura, stendendo rapporto scritto",
+        "Può temporeggiare per vedere se il responsabile si autodenuncia",
+        "È tenuto a chiedere il permesso all’Amministrazione Comunale"
+      ],
+      correctAnswer: 1
+     },
+     {
+      question: "In ambito di sicurezza sul lavoro, la mancata adozione di misure antincendio previste può costituire:",
+      answers: [
+        "Un illecito civile risarcibile, ma non reato",
+        "Un’infrazione che i VV.F. devono segnalare al Consiglio di Stato",
+        "Un reato contravvenzionale (punito penalmente) di cui può occuparsi anche la PG dei VV.F.",
+        "Un semplice richiamo verbale"
+      ],
+      correctAnswer: 2
+     },
+     {
+      question: "Le responsabilità penali per incendio colposo (art. 449 c.p.) scattano quando:",
+      answers: [
+        "L’incendio è provocato con dolo",
+        "Senza volerlo, ma per negligenza o imprudenza, si causa un incendio pericoloso per l’incolumità pubblica",
+        "L’incendio distrugge solo beni mobili di poco valore",
+        "Vi sono contrasti di natura condominiale"
+      ],
+      correctAnswer: 1
+     },
+     {
+      question: "Nelle indagini su reati di competenza VVF, se emergono situazioni di pericolo immediato:",
+      answers: [
+        "La PG dei VV.F. può adottare provvedimenti urgenti per salvaguardare la pubblica incolumità, informando subito l’Autorità Giudiziaria",
+        "Si attende la fine del processo penale",
+        "Non è competenza dei Vigili del Fuoco",
+        "Bisogna chiedere l’autorizzazione del Ministero degli Esteri"
+      ],
+      correctAnswer: 0
+     },
+     {
+      question: "Nei sopralluoghi, gli Agenti di PG dei VV.F. devono redigere verbali puntuali, perché:",
+      answers: [
+        "Sono solo un pro-forma, non necessari",
+        "Costituiscono la base documentale per le indagini e le valutazioni del PM",
+        "Li utilizza l’INPS per calcolare le pensioni",
+        "Servono solo per motivi amministrativi interni"
+      ],
+      correctAnswer: 1
+     },
+     {
+      question: "Se i VV.F. constatano un deposito di materiale infiammabile non autorizzato che supera i limiti di legge:",
+      answers: [
+        "Non devono fare nulla, se i proprietari promettono di mettersi in regola",
+        "Devono sigillare l’intera proprietà e arrestare i presenti",
+        "Devono informare la Procura e compiere gli atti di PG necessari (rilievi, sequestri se consentito, ecc.)",
+        "Possono soltanto avvisare la Polizia Municipale"
+      ],
+      correctAnswer: 2
+     },
+     {
+      question: "La differenza tra Polizia Giudiziaria e Polizia di Sicurezza per i VV.F. si concretizza in:",
+      answers: [
+        "Attività di vigilanza sul rispetto di norme antincendio (amministrativa) e attività di indagine su reati (giudiziaria)",
+        "Nessuna differenza, sono sinonimi",
+        "Maggiori poteri in polizia di sicurezza e nessun potere in polizia giudiziaria",
+        "Il colore della divisa indossata durante il servizio"
+      ],
+      correctAnswer: 0
+    }
+    ]; // Fine dei 320 (8 set da 40)
+
+    // ================================
+    // 9) SOSTANZE ESTINGUENTI (80)
+    // ================================
+    // Aggiungiamo direttamente queste 80 al questionBank:
+	
+	const SostanzeEstinguentiSet = [
+    // (1) LA COMBUSTIONE (5 domande)
+    {
+      question: "Che cos'è la combustione?",
+      answers: [
+        "Una reazione chimica esotermica con sviluppo di calore e fiamma",
+        "Il raffreddamento rapido di un gas compresso",
+        "La condensazione di vapori infiammabili",
+        "La reazione endoergonica tra due metalli"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "Quale delle seguenti affermazioni descrive correttamente la fase di pre-accensione della combustione?",
+      answers: [
+        "La combustione è già al picco di intensità",
+        "Il materiale combustibile viene riscaldato e inizia a emettere vapori",
+        "Si è consumato tutto l'ossigeno disponibile",
+        "La temperatura resta costante"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Durante la combustione, la presenza di un comburente è fondamentale. Di solito, il comburente principale è:",
+      answers: [
+        "Azoto (N2)",
+        "Anidride carbonica (CO2)",
+        "Ossigeno (O2)",
+        "Idrogeno (H2)"
+      ],
+      correctAnswer: 2
+    },
+    {
+      question: "Qual è lo scopo dell'innesco nella combustione?",
+      answers: [
+        "Fornire l'energia iniziale per avviare la reazione",
+        "Ridurre la temperatura dell'ambiente",
+        "Eliminare l'ossigeno in eccesso",
+        "Espellere i residui solidi"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "In condizioni di combustione incompleta, quale sostanza tossica può formarsi in elevate concentrazioni?",
+      answers: [
+        "Vapore acqueo (H2O)",
+        "Monossido di carbonio (CO)",
+        "Biossido di zolfo (SO2)",
+        "Metano (CH4)"
+      ],
+      correctAnswer: 1
+    },
+
+    // (2) TRIANGOLO DEL FUOCO (5 domande)
+    {
+      question: "Quali sono i tre elementi del triangolo del fuoco?",
+      answers: [
+        "Carburante, comburente e temperatura di fusione",
+        "Combustibile, comburente e calore",
+        "Fiamma, fumo e scintilla",
+        "Gas, acqua e polvere"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Per estinguere un incendio rimuovendo l'ossigeno, si parla di:",
+      answers: [
+        "Soffocamento",
+        "Raffreddamento",
+        "Reazione endotermica",
+        "Diluizione del combustibile"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "Se si raffredda il materiale combustibile al di sotto del punto di accensione, quale elemento del triangolo del fuoco viene meno?",
+      answers: [
+        "Comburente",
+        "Calore",
+        "Combustibile",
+        "Riduzione di catena"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Per interrompere la combustione attraverso l'inibizione chimica, quale elemento viene aggredito?",
+      answers: [
+        "Le molecole di combustibile nello stato solido",
+        "Il comburente a bassa pressione",
+        "I radicali liberi nella reazione a catena",
+        "La temperatura ambientale"
+      ],
+      correctAnswer: 2
+    },
+    {
+      question: "L'estinzione di un incendio può ottenersi rimuovendo uno dei tre fattori del triangolo del fuoco o mediante:",
+      answers: [
+        "Combustione accelerata",
+        "Inibizione chimica della fiamma",
+        "Stabilizzazione termica del combustibile",
+        "Pressurizzazione dell'ambiente"
+      ],
+      correctAnswer: 1
+    },
+
+    // (3) CLASSIFICAZIONE DEGLI INCENDI (5 domande)
+    {
+      question: "Un incendio di classe A coinvolge:",
+      answers: [
+        "Gas infiammabili",
+        "Metalli combustibili come il magnesio",
+        "Materiali solidi di natura ordinaria (legno, carta, tessuti)",
+        "Oli e grassi da cucina"
+      ],
+      correctAnswer: 2
+    },
+    {
+      question: "Gli incendi di classe B sono quelli che interessano:",
+      answers: [
+        "Materiali metallici",
+        "Solidi come carta e legno",
+        "Liquidi infiammabili o solidi liquefattibili",
+        "Gas combustibili"
+      ],
+      correctAnswer: 2
+    },
+    {
+      question: "Quale dei seguenti esempi rientra in un incendio di classe C?",
+      answers: [
+        "Incendio di un serbatoio di benzina",
+        "Incendio di apparecchiature elettriche sotto tensione",
+        "Incendio di gas combustibili come metano o GPL",
+        "Incendio di un deposito di carbone"
+      ],
+      correctAnswer: 2
+    },
+    {
+      question: "Gli incendi di classe D coinvolgono:",
+      answers: [
+        "Metalli combustibili (es. alluminio, titanio, magnesio)",
+        "Apparecchiature elettriche a bassa tensione",
+        "Oli esausti e carburanti agricoli",
+        "Prodotti chimici a bassa pericolosità"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "Un incendio di classe F riguarda principalmente:",
+      answers: [
+        "Fibre tessili sintetiche",
+        "Oli e grassi vegetali o animali in apparati di cottura",
+        "Legni resinosi ad alta densità",
+        "Polveri metalliche in ambienti industriali"
+      ],
+      correctAnswer: 1
+    },
+
+    // (4) AZIONE DELLE SOSTANZE ESTINGUENTI (5 domande)
+    {
+      question: "Quale tra questi è un meccanismo di estinzione di un incendio?",
+      answers: [
+        "Aumento dell'ossigeno in ambiente",
+        "Raffreddamento, soffocamento o inibizione chimica",
+        "Espansione del combustibile per saturazione",
+        "Aumento della pressione interna"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "L’effetto di raffreddamento (cooling) consiste nel:",
+      answers: [
+        "Sottrarre calore durante il passaggio allo stato di vapore",
+        "Eliminare completamente l'ossigeno presente",
+        "Aumentare la reattività chimica del comburente",
+        "Portare l'ambiente a una pressione negativa"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "Soffocare un incendio significa:",
+      answers: [
+        "Ridurre la temperatura del focolare sotto il punto di infiammabilità",
+        "Togliere il combustibile dalla zona di reazione",
+        "Ridurre o isolare l’ossigeno disponibile per la combustione",
+        "Creare un flusso d’aria aggiuntivo"
+      ],
+      correctAnswer: 2
+    },
+    {
+      question: "L’inibizione chimica della fiamma agisce su:",
+      answers: [
+        "Il combustibile solido",
+        "L’evaporazione dell’acqua nei pressi del focolare",
+        "I radicali liberi che alimentano la reazione a catena",
+        "La concentrazione di CO2 nell’aria"
+      ],
+      correctAnswer: 2
+    },
+    {
+      question: "Per un incendio di classe C, quale azione estinguente è spesso necessaria?",
+      answers: [
+        "Aggiunta di catalizzatori di reazione",
+        "Soffocamento del gas e interruzione della fuoriuscita",
+        "Riscaldamento graduale del comburente",
+        "Innesco controllato per ridurre la pressione"
+      ],
+      correctAnswer: 1
+    },
+
+    // (5) SOSTANZE ESTINGUENTI (5 domande)
+    {
+      question: "Quale delle seguenti NON è tipicamente una sostanza estinguente?",
+      answers: [
+        "Acqua",
+        "Schiuma",
+        "Idrogeno compresso",
+        "Polvere chimica"
+      ],
+      correctAnswer: 2
+    },
+    {
+      question: "La polvere chimica estinguente solitamente agisce tramite:",
+      answers: [
+        "Raffreddamento intenso del combustibile",
+        "Inibizione chimica e soffocamento locale",
+        "Aumento della temperatura di ebollizione",
+        "Riduzione dell’umidità relativa"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "L’anidride carbonica (CO2) come sostanza estinguente opera principalmente per:",
+      answers: [
+        "Inibizione della reazione a catena",
+        "Raffreddamento del combustibile solido",
+        "Sostituzione e riduzione dell’ossigeno (soffocamento)",
+        "Reazione chimica con i vapori di combustibile"
+      ],
+      correctAnswer: 2
+    },
+    {
+      question: "L’acqua come agente estinguente basa la sua efficacia su:",
+      answers: [
+        "Riduzione dell’ossigeno al di sotto del 2%",
+        "L’inibizione chimica diretta sulla fiamma",
+        "Il raffreddamento tramite elevato calore latente di evaporazione",
+        "Il passaggio dallo stato gassoso a solido"
+      ],
+      correctAnswer: 2
+    },
+    {
+      question: "Gli idrocarburi alogenati (Halons) sono stati largamente sostituiti perché:",
+      answers: [
+        "Producono un effetto refrigerante eccessivo",
+        "Hanno elevato impatto sull’ozono stratosferico",
+        "Non erano efficaci sugli incendi di classe A",
+        "Erano troppo economici per il mercato"
+      ],
+      correctAnswer: 1
+    },
+
+    // (6) ACQUA (5 domande)
+    {
+      question: "Perché l’acqua è ampiamente utilizzata come sostanza estinguente?",
+      answers: [
+        "Ha basso costo, ampia disponibilità e un elevato calore latente di evaporazione",
+        "Non reagisce chimicamente con nessuna sostanza",
+        "È sempre raccomandata per incendi di classe E",
+        "Non gela mai a basse temperature"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "In che modo l’acqua raffredda un incendio?",
+      answers: [
+        "Abbassando la tensione di vapore del combustibile",
+        "Assorbendo calore durante il passaggio allo stato di vapore",
+        "Rilasciando ossigeno quando si surriscalda",
+        "Sigillando la superficie del combustibile"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Perché l’acqua non è consigliata per incendi di classe C (gas)?",
+      answers: [
+        "Perché reagisce esplosivamente con i gas",
+        "Per il rischio di propagare la fiamma in presenza di alta pressione del gas",
+        "Per l’elevato costo di approvvigionamento",
+        "È sempre consigliata in ogni caso"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "In presenza di apparecchiature elettriche sotto tensione, l’uso di acqua come estinguente:",
+      answers: [
+        "È sicuro se l’acqua è priva di sali disciolti",
+        "Può condurre elettricità e causare folgorazione",
+        "Favorisce l’isolamento del circuito",
+        "Richiede pressioni molto alte"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Gli impianti a pioggia (sprinkler) ad acqua operano tipicamente:",
+      answers: [
+        "Saturando il locale con schiuma leggera",
+        "Rilasciando acqua nebulizzata ad alta pressione in modo automatico all’innalzarsi della temperatura",
+        "Rilasciando vapore surriscaldato a 300 °C",
+        "In sinergia con polvere estinguente"
+      ],
+      correctAnswer: 1
+    },
+
+    // (7) SCHIUMA (5 domande)
+    {
+      question: "La schiuma antincendio è composta da:",
+      answers: [
+        "Acqua e polvere in parti uguali",
+        "Un tensioattivo (liquido schiumogeno) mescolato ad acqua e aria",
+        "CO2 liquida e azoto",
+        "Una miscela di azoto e vapore saturo"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Perché la schiuma è efficace su incendi di liquidi infiammabili (classe B)?",
+      answers: [
+        "Crea uno strato isolante che separa il combustibile dall’ossigeno",
+        "Raffredda il liquido fino a -40 °C",
+        "Produce una reazione chimica col combustibile",
+        "Abbassa la pressione atmosferica all’interno del serbatoio"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "Che differenza c’è tra schiuma a bassa espansione e ad alta espansione?",
+      answers: [
+        "Il contenuto di ossigeno nel liquido schiumogeno",
+        "La dimensione delle bolle e il rapporto di espansione (litri di schiuma prodotti per litro di soluzione)",
+        "La pressione di stoccaggio del liquido schiumogeno",
+        "L’impiego in incendi di classe A o D"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "La schiuma polivalente (A/B) può essere usata su:",
+      answers: [
+        "Incendi di classe A e B",
+        "Metalli combustibili (D)",
+        "Gas infiammabili (C)",
+        "Oli da cucina (F)"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "Qual è il limite principale della schiuma su incendi di sostanze polari (es. alcol)?",
+      answers: [
+        "La schiuma tende a degradarsi se non è di tipo resistente agli alcoli",
+        "È impossibile soffocare la fiamma del tutto",
+        "Richiede temperature inferiori a 0 °C",
+        "Non si mischia bene con l’acqua"
+      ],
+      correctAnswer: 0
+    },
+
+    // (8) POLVERE (5 domande)
+    {
+      question: "Le polveri estinguenti ordinarie (polvere ABC) sono costituite principalmente da:",
+      answers: [
+        "Carbonato di calcio purissimo",
+        "Fosfato monoammonico o solfato d’ammonio",
+        "Un mix di sabbia e cemento",
+        "Metallo alcalino in polvere"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Come agisce la polvere ABC su un incendio di classe A?",
+      answers: [
+        "Saldando le parti combustibili con reazione endotermica",
+        "Creando una barriera schiumosa sulla superficie",
+        "Inibendo la reazione a catena e formando uno strato di fusione che soffoca l’incendio",
+        "Raffreddando il combustibile fino a 0 °C"
+      ],
+      correctAnswer: 2
+    },
+    {
+      question: "La polvere BC è indicata per:",
+      answers: [
+        "Incendi di legna e carta",
+        "Incendi di metalli combustibili",
+        "Incendi di liquidi e gas infiammabili",
+        "Incendi di oli da cucina"
+      ],
+      correctAnswer: 2
+    },
+    {
+      question: "Qual è lo svantaggio principale dell’uso di polvere estinguente in ambienti chiusi?",
+      answers: [
+        "Produce vapori tossici",
+        "Riduce drasticamente la visibilità e può danneggiare apparecchiature sensibili",
+        "Non è efficace su nessuna classe di incendio",
+        "Ha un costo elevatissimo"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Le polveri speciali (classe D) contengono spesso:",
+      answers: [
+        "Cloruro di sodio (NaCl) o grafite, adatte per metalli combustibili",
+        "Anidride carbonica liquida",
+        "Schiuma ad alta espansione",
+        "Ammoniaca compressa"
+      ],
+      correctAnswer: 0
+    },
+
+    // (9) ANIDRIDE CARBONICA (CO2) (5 domande)
+    {
+      question: "Perché la CO2 è particolarmente usata in ambienti con apparecchiature elettriche sotto tensione?",
+      answers: [
+        "Non è conduttrice e non lascia residui",
+        "È molto economica e facile da trasportare",
+        "Non ha alcun limite di temperatura",
+        "Genera un raffreddamento del combustibile di oltre -100 °C"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "L’anidride carbonica spegne l’incendio principalmente per:",
+      answers: [
+        "Inibizione della reazione a catena",
+        "Raffreddamento del combustibile",
+        "Sostituzione e riduzione dell’ossigeno (soffocamento)",
+        "Assorbimento chimico del combustibile"
+      ],
+      correctAnswer: 2
+    },
+    {
+      question: "Qual è un pericolo nell’uso di CO2 in ambienti chiusi e poco ventilati?",
+      answers: [
+        "La rapida solidificazione del combustibile",
+        "La formazione di monossido di carbonio",
+        "L’asfissia per le persone presenti, data la riduzione di ossigeno",
+        "L’accensione spontanea di gas alogeni"
+      ],
+      correctAnswer: 2
+    },
+    {
+      question: "Le bombole di CO2 per estintori devono essere corredate di:",
+      answers: [
+        "Valvola di sicurezza e cono diffusore, evitando contatto diretto con la pelle",
+        "Dispositivi di ricarica automatica con aria",
+        "Indicatori radioattivi per la pressione",
+        "Sistemi di riscaldamento integrato"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "Se si utilizza CO2 su un incendio di classe A di notevole entità, l’efficacia:",
+      answers: [
+        "È ottima in qualsiasi caso",
+        "Potrebbe essere limitata, essendo la CO2 indicata soprattutto per fuochi localizzati (elettricità, piccoli focolai di liquidi)",
+        "È sempre superiore a quella dell’acqua",
+        "Può causare esplosioni secondarie"
+      ],
+      correctAnswer: 1
+    },
+
+    // (10) IDROCARBURI ALOGENATI (5 domande)
+    {
+      question: "Gli Halon (idrocarburi alogenati) venivano usati come estinguenti per:",
+      answers: [
+        "Raffreddamento intenso di grandi serbatoi di petrolio",
+        "Inibizione chimica della fiamma, con residuo pulito",
+        "Pulire le superfici dal grasso",
+        "Rendere incombustibili i metalli"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Perché l’uso di Halon è stato fortemente limitato a partire dal Protocollo di Montreal?",
+      answers: [
+        "Sono estremamente costosi e introvabili",
+        "Producono un odore sgradevole",
+        "Contribuiscono alla distruzione dell’ozono stratosferico",
+        "Raggiungono temperature di autoaccensione bassissime"
+      ],
+      correctAnswer: 2
+    },
+    {
+      question: "Alcuni sostituti degli Halon (idrofluorocarburi o HFC) agiscono con meccanismo di:",
+      answers: [
+        "Raffreddamento e lieve riduzione di ossigeno",
+        "Immersione in acqua pressurizzata",
+        "Ossidazione controllata",
+        "Reazione chimica esplosiva"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "Nei sistemi a saturazione con agenti alogenati, uno dei rischi principali è:",
+      answers: [
+        "Scarsa penetrazione tra i cavi elettrici",
+        "Elevata conduttività elettrica",
+        "La decomposizione termica a temperature elevate, con formazione di gas tossici",
+        "L’impossibilità di controllare la concentrazione in grandi volumi"
+      ],
+      correctAnswer: 2
+    },
+    {
+      question: "Gli estinguenti alogenati residui (ad es. HCFC) sono usati attualmente:",
+      answers: [
+        "Solo in ambito aeronautico e militare, o in sistemi soggetti a deroghe speciali",
+        "Comunemente in tutti gli estintori portatili",
+        "In agricoltura per disinfettare i suoli",
+        "Nei veicoli stradali come gas refrigerante"
+      ],
+      correctAnswer: 0
+    },
+
+    // (11) ESTINTORI (8 domande)
+    {
+      question: "Come si definisce un estintore portatile?",
+      answers: [
+        "Un apparecchio di estinzione con massa superiore a 30 kg",
+        "Un dispositivo che può essere trasportato e azionato a mano per spegnere principi di incendio",
+        "Un impianto fisso dotato di tubazioni rigide",
+        "Un serbatoio spruzzatore con acqua calda"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "La norma EN 3 disciplina:",
+      answers: [
+        "La segnaletica di sicurezza stradale",
+        "Le caratteristiche di costruzione, prestazione e metodi di prova degli estintori portatili",
+        "La classificazione degli incendi industriali",
+        "L'impiego di maschere filtranti"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Cosa indica la lettera che accompagna la classe di incendio riportata su un estintore (es. 13A, 89B)?",
+      answers: [
+        "Il nome del fabbricante",
+        "La dimensione massima del locale protetto",
+        "Il tipo di fuoco che l’estintore è in grado di spegnere (A, B, C, ecc.)",
+        "Il contenuto di anidride carbonica al suo interno"
+      ],
+      correctAnswer: 2
+    },
+    {
+      question: "Un estintore a base di polvere ABC:",
+      answers: [
+        "È adatto solo a incendi di liquidi infiammabili",
+        "È polivalente, per incendi di classe A, B e C",
+        "Non può spegnere fuochi con materiale solido",
+        "È vietato nelle abitazioni"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Gli estintori a CO2 sono particolarmente indicati per:",
+      answers: [
+        "Fuochi di oli da cucina",
+        "Incendi di apparecchiature elettriche e liquidi infiammabili in ambienti confinati",
+        "Legno e carbone in combustione lenta",
+        "Metalli leggeri in polvere"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "La capacità estinguente di un estintore è espressa con una sigla tipo '21A - 113B'. Cosa significano i numeri?",
+      answers: [
+        "La valutazione numerica che indica il volume di gas rilasciato in litri",
+        "La prestazione estinguente su prove standard di legno (classe A) e liquidi (classe B)",
+        "L’intervallo di manutenzione richiesto in mesi",
+        "La pressione massima di esercizio in bar"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Gli estintori a base d'acqua nebulizzata sono classificati come:",
+      answers: [
+        "Idonei a spegnere metalli combustibili (D)",
+        "Utilizzabili su classe F e rischi elettrici a basso voltaggio, se specificamente testati",
+        "Esclusivamente per incendi di classe C",
+        "Sempre equivalenti alla polvere"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Un estintore pressurizzato permanentemente (P.E.) si riconosce perché:",
+      answers: [
+        "Ha un manometro che indica la pressione interna costante",
+        "Non possiede alcuna valvola di scarico",
+        "Viene caricato con una bombolina di gas ausiliario",
+        "Non necessita di revisione periodica"
+      ],
+      correctAnswer: 0
+    },
+
+    // (12) DISPOSITIVI DI SICUREZZA + CONTRASSEGNI (4 domande)
+    {
+      question: "Un dispositivo di sicurezza tipico su un estintore è la valvola di sfiato. A cosa serve?",
+      answers: [
+        "A scaricare automaticamente la pressione in eccesso per evitare esplosioni",
+        "Ad aumentare la pressione quando l’estintore è quasi vuoto",
+        "A bloccare il combustibile esterno",
+        "A spruzzare anidride carbonica su vasta scala"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "Il contrassegno distintivo di un estintore (etichetta) deve riportare:",
+      answers: [
+        "L’orario di lavoro del tecnico manutentore",
+        "Il numero di matricola, la classe di incendio, la capacità estinguente e le istruzioni d’uso",
+        "La temperatura di colore del focolare",
+        "Il codice fiscale del proprietario"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Il sigillo di sicurezza (o piombino) su un estintore ha la funzione di:",
+      answers: [
+        "Evitare un uso non autorizzato, indicando se è stato manomesso",
+        "Contenere la bombola di gas propellente",
+        "Verificare la temperatura esterna",
+        "Sigillare il combustibile al suo interno"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "La norma prevede che gli estintori riportino indicazioni sul tipo di agente estinguente. Qual è il motivo?",
+      answers: [
+        "Differenziare i costi di ricarica",
+        "Permettere un uso corretto e consapevole in base al tipo di incendio",
+        "Ridurre il peso trasportato",
+        "Conformarsi al codice di navigazione"
+      ],
+      correctAnswer: 1
+    },
+
+    // (13) CAPACITÀ ESTINGUENTE (4 domande)
+    {
+      question: "La capacità estinguente di un estintore è stabilita mediante:",
+      answers: [
+        "Prove di spegnimento standardizzate su travi di legno e vasche di liquido",
+        "Valutazione numerica basata sulla pressione interna",
+        "Lunghezza della lancia erogatrice",
+        "La quantità di polvere (in kg) o CO2 (in kg) presente"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "Un estintore etichettato 13A - 70B è in grado di spegnere:",
+      answers: [
+        "Focolari di classe C solamente",
+        "Legno, carta, tessuti (A) con un livello 13, e liquidi infiammabili (B) con un livello 70",
+        "Metalli leggeri (D)",
+        "Oli da cucina (F)"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Se la sigla di prova dell’estintore include 'E', a quale incendio si riferisce?",
+      answers: [
+        "Incendi di sostanze esplosive",
+        "Inesistente, poiché E non definisce una classe di incendio a sé stante (in alcuni paesi indica rischio elettrico, ma non nelle normative EN3)",
+        "Incendi di sostanze radioattive",
+        "Incendi in ambienti esterni"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Quanto incide la dimensione del getto su un incendio di classe B in termini di capacità estinguente?",
+      answers: [
+        "Non ha alcun impatto",
+        "Una maggiore gittata e durata erogazione migliorano il raffreddamento e la copertura del liquido in fiamme",
+        "Più è breve, meglio è, per saturare i vapori",
+        "Si considera solo per incendi di classe D"
+      ],
+      correctAnswer: 1
+    },
+
+    // (14) IMPIANTI FISSI ANTINCENDIO (4 domande)
+    {
+      question: "Un impianto fisso antincendio è definito come:",
+      answers: [
+        "Un sistema di estinzione o controllo dell'incendio installato permanentemente in un edificio",
+        "Una rete di naspi portatili mobili",
+        "Un estintore portatile con ruote",
+        "Qualunque sistema di rilevazione fumi"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "Quale tra questi è un esempio di impianto fisso antincendio?",
+      answers: [
+        "Un estintore a polvere da 6 kg",
+        "Un sistema sprinkler ad acqua automatico",
+        "Un kit di primo soccorso con coperte antifiamma",
+        "Un segnalatore acustico portatile"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Gli impianti a saturazione totale (total flooding) con gas estinguenti sono particolarmente indicati per:",
+      answers: [
+        "Proteggere grandi piazzali di stoccaggio liquidi",
+        "Locali chiusi con apparecchiature delicate, come server room, per evitare danni da acqua",
+        "Cisterne di carburante all’aperto",
+        "Raffreddare metalli incandescenti"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "La manutenzione regolare degli impianti fissi antincendio serve a:",
+      answers: [
+        "Abbassare i consumi elettrici",
+        "Verificare l’efficienza e l’affidabilità in caso di necessità",
+        "Diminuire la temperatura interna del fabbricato",
+        "Aumentare la pressione dell’acqua in rete a scopo potabile"
+      ],
+      correctAnswer: 1
+    },
+
+    // (15) IMPIANTI FISSI AD ACQUA (5 domande)
+    {
+      question: "Un sistema sprinkler è composto da:",
+      answers: [
+        "Rilevatori di movimento e sirene acustiche",
+        "Ugelli termosensibili collegati a una rete idrica in pressione e un sistema di allarme",
+        "Solo bombole di CO2 collegate a una rete di tubi",
+        "Serbatoi di polvere chimica e lancia"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Quando si attiva uno sprinkler in un impianto ad acqua?",
+      answers: [
+        "Ogni giorno, per il controllo di routine",
+        "In caso di rilevamento di fumo con appositi sensori",
+        "Quando la temperatura del bulbo termosensibile raggiunge il valore di taratura rompendolo",
+        "Se l'operatore schiaccia manualmente un pulsante"
+      ],
+      correctAnswer: 2
+    },
+    {
+      question: "Un impianto a diluvio (deluge system) è una variante di:",
+      answers: [
+        "Sistema a CO2 ad alta pressione",
+        "Sistema sprinkler in cui tutti gli ugelli sono aperti e l’acqua parte su comando di un rilevatore d'incendio",
+        "Sistema schiuma ad alta espansione con generatori meccanici",
+        "Rete di naspi fissi con tubazioni rigide"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "L’impianto di spegnimento ad acqua 'pre-action' prevede:",
+      answers: [
+        "L’immediato rilascio d'acqua in tutti gli sprinkler ad alta pressione",
+        "Che l'acqua entri nelle tubazioni solo dopo un segnale di allarme e la rottura di un secondo elemento di sicurezza",
+        "Un funzionamento esclusivamente manuale",
+        "La miscelazione di anidride carbonica"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Per garantire la continuità di alimentazione idrica a un impianto sprinkler, spesso si prevede:",
+      answers: [
+        "Un unico serbatoio di riserva senza pompe",
+        "Una doppia alimentazione (rete acquedotto + riserva) e pompe antincendio dedicate",
+        "L’uso di acqua salata proveniente dal mare",
+        "Un compressore di aria a 100 bar"
+      ],
+      correctAnswer: 1
+    },
+
+    // (16) APPARECCHI DI EROGAZIONE (RETE IDRICA ANTINCENDIO) (5 domande)
+    {
+      question: "Un idrante a muro (o naspo) serve a:",
+      answers: [
+        "Prelevare polvere estinguente e distribuirla su grandi superfici",
+        "Realizzare una divisione dei locali in compartimenti stagni",
+        "Fornire acqua in modo immediato attraverso una manichetta semirigida o flessibile per spegnimento manuale",
+        "Creare schiuma ad alta espansione in depositi chimici"
+      ],
+      correctAnswer: 2
+    },
+    {
+      question: "La differenza fra idrante a colonna soprasuolo e sottosuolo è:",
+      answers: [
+        "Nessuna, cambia solo il colore della vernice",
+        "L’idrante a colonna emergente è visibile e accessibile, quello sottosuolo è in pozzetto chiuso da botola",
+        "L’idrante a colonna si usa in zone montane, il sottosuolo in pianura",
+        "Non esiste l’idrante sottosuolo"
+      ],
+      correctAnswer: 1
+    },
+    {
+      question: "Un ‘naspo antincendio’ rispetto a un ‘idrante a cassetta’ si differenzia perché:",
+      answers: [
+        "È dotato di tubazione semirigida avvolta su un tamburo rotante, pronta all'uso rapido",
+        "Non eroga acqua ma schiuma a bassa espansione",
+        "È sempre a scomparsa nel pavimento",
+        "Ha un estintore incorporato nella cassetta"
+      ],
+      correctAnswer: 0
+    },
+    {
+      question: "Per garantire la pressione adeguata agli apparecchi di erogazione, in un impianto antincendio si utilizzano spesso:",
+      answers: [
+        "Serbatoi in vetroresina da 20 litri",
+        "Valvole di riduzione a 10 bar fissi",
+        "Elettropompe e motopompe con alimentazione dedicata",
+        "Bombole di ossigeno puro"
+      ],
+      correctAnswer: 2
+    },
+    {
+      question: "Nella rete idrica antincendio, la valvola d’intercettazione principale serve a:",
+      answers: [
+        "Consentire il deflusso dell’aria dal sistema",
+        "Regolare la temperatura dell’acqua",
+        "Isolare completamente la rete in caso di manutenzione o di guasto",
+        "Convertire l’acqua in vapore"
+      ],
+      correctAnswer: 2
+    }
+    ];
+	
+    // Uniamo l'ottavo set (80 domande) con i precedenti 320, per un totale di 400
+    questionBank.push(...prevenzioneIncendiSet);
+	questionBank.push(...PoliziaGiudiziariaSet);
+	questionBank.push(...SostanzeEstinguentiSet);
+
+    // ================================================
+    // FUNZIONI PER IL QUIZ
+    // ================================================
+
+    // Funzione per mescolare un array (Fisher-Yates shuffle)
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    // Selezioniamo 30 domande casuali dal totale di 400
+    const shuffledQuestions = [...questionBank];
+    shuffleArray(shuffledQuestions);
+    const selectedQuestions = shuffledQuestions.slice(0, 30);
+
+    // Mostra le domande nel DOM
+    function displayQuestions(questions) {
+      const quizContainer = document.getElementById("quiz");
+      quizContainer.innerHTML = "";
+
+      questions.forEach((q, index) => {
+        const questionDiv = document.createElement("div");
+        questionDiv.className = "question-container";
+
+        const questionTitle = document.createElement("h3");
+        questionTitle.textContent = `Domanda ${index + 1}: ${q.question}`;
+        questionDiv.appendChild(questionTitle);
+
+        const answersDiv = document.createElement("div");
+        answersDiv.className = "answers";
+
+        q.answers.forEach((answer, ansIndex) => {
+          const label = document.createElement("label");
+          const radio = document.createElement("input");
+          radio.type = "radio";
+          radio.name = `question_${index}`;
+          radio.value = ansIndex;
+          label.appendChild(radio);
+          label.appendChild(document.createTextNode(answer));
+          answersDiv.appendChild(label);
+        });
+
+        questionDiv.appendChild(answersDiv);
+        quizContainer.appendChild(questionDiv);
+      });
+    }
+
+    // Funzione per correggere e mostrare i risultati
+
+  function submitQuiz() {
+  let correctCount = 0;
+  const resultsDiv = document.getElementById("results");
+  resultsDiv.innerHTML = "";
+
+  selectedQuestions.forEach((q, index) => {
+    const radios = document.getElementsByName(`question_${index}`);
+    let userAnswer = null;
+
+    for (let r of radios) {
+      if (r.checked) {
+        userAnswer = parseInt(r.value);
+        break;
+      }
+    }
+
+    // Evidenzia le risposte corrette e/o errate
+    radios.forEach((radio, ansIndex) => {
+      let label = radio.parentNode;
+      label.classList.remove("correct", "incorrect");
+
+      if (ansIndex === q.correctAnswer) {
+        label.classList.add("correct");
+      }
+      if (radio.checked && ansIndex !== q.correctAnswer) {
+        label.classList.add("incorrect");
+      }
+    });
+
+    if (userAnswer === q.correctAnswer) {
+      correctCount++;
+    } else {
+      const resultLine = document.createElement("p");
+      resultLine.innerHTML = `Domanda ${index + 1}:
+        <span class="incorrect">Risposta sbagliata.</span>
+        (Corretta: <strong>${q.answers[q.correctAnswer]}</strong>)`;
+      resultsDiv.appendChild(resultLine);
+    }
+  });
+
+  const scoreParagraph = document.createElement("p");
+  scoreParagraph.innerHTML = `Hai risposto correttamente a <span class="correct">${correctCount}</span> domande su ${selectedQuestions.length}.`;
+  resultsDiv.appendChild(scoreParagraph);
+    }
+
+    // Inizializza il quiz mostrando le domande
+    displayQuestions(selectedQuestions);
+  </script>
+</body>
+</html>
